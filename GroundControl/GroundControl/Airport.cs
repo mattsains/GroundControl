@@ -18,6 +18,7 @@ namespace GroundControl
         List<Tuple<List<Vector2>,Color>> aprons=new List<Tuple<List<Vector2>,Color>>();
 
         Graph<TaxiNode> taxiways;
+        public List<TaxiNode> taxiCollapsed;
 
         //cache of graphics properties
         private List<vpcind> graphicsPolys=new List<vpcind>();
@@ -46,6 +47,7 @@ namespace GroundControl
                 }
             }
             List<Graph<TaxiNode>> graphs = new List<Graph<TaxiNode>>();
+            taxiCollapsed = new List<TaxiNode>();
             while (XMLAsset.Read())
             {
                 if (XMLAsset.NodeType == XmlNodeType.Element && XMLAsset.Name == "Apron")
@@ -97,11 +99,12 @@ namespace GroundControl
                             case "Gate": nodeType=NodeType.Gate; break;
                             case "Taxiway":
                             default: nodeType=NodeType.Taxiway; break;
-                        }                        
-                        graphs.Add(new Graph<TaxiNode>(new TaxiNode(XMLAsset.GetAttribute("id"), //the node's ID
+                        }
+                        taxiCollapsed.Add(new TaxiNode(XMLAsset.GetAttribute("id"), //the node's ID
                                                 new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))), //the position
                                                 nodeType, //type
-                                                bool.Parse(XMLAsset.GetAttribute("canhold")))));//whether you can hold at this point);
+                                                bool.Parse(XMLAsset.GetAttribute("canhold"))));//whether you can hold at this point
+                        graphs.Add(new Graph<TaxiNode>(taxiCollapsed[taxiCollapsed.Count-1]));
                         //wow.
                     }
                     continue;
@@ -141,20 +144,6 @@ namespace GroundControl
             //</initialize>
             foreach (Tuple<List<Vector2>,Color> apron in aprons)
                 graphicsPolys.Add(Display.Triangulate(apron.Item1, apron.Item2));
-        }
-        private void AddToGraph(Graph<TaxiNode> graph, List<Tuple<TaxiNode,List<Tuple<string,string>>>> tree,List<Tuple<string,string>> edges)
-        {
-            if (edges.Count == 1)
-            {
-                //tail
-            }
-            else
-            {
-                foreach (Tuple<TaxiNode, List<Tuple<string, string>>> node in tree)
-                {
-
-                }
-            }
         }
         public void Draw()
         {

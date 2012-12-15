@@ -23,7 +23,8 @@ namespace GroundControl
 
         BasicEffect basicEffect;
         Airport t;
-
+        Texture2D tex;
+        Vector2 dotpos;
         public GroundControl()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -40,12 +41,7 @@ namespace GroundControl
         {
             // TODO: Add your initialization logic here
             // I want to draw lines. Therefore start a 3D projection. lol wut
-            basicEffect = new BasicEffect(graphics.GraphicsDevice);
-            basicEffect.VertexColorEnabled = true;
-            basicEffect.Projection = Matrix.CreateOrthographicOffCenter
-               (0, 1280,     // left, right
-                778, 0,    // bottom, top
-                0, 1);                                         // near, far plane
+            Display.Initialise(spriteBatch,GraphicsDevice);
             this.IsMouseVisible = true;
             Window.AllowUserResizing = true;
             base.Initialize();
@@ -59,11 +55,11 @@ namespace GroundControl
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            Display.SpriteBatch = spriteBatch;
-            Display.GraphicsDevice = GraphicsDevice;
 
             // TODO: use this.Content to load your game content here
             t = new Airport("airports/fape");
+            tex = Content.Load<Texture2D>("dot");
+
         }
 
         /// <summary>
@@ -87,7 +83,21 @@ namespace GroundControl
                 this.Exit();
 
             // TODO: Add your update logic here
-            
+            int min = int.MaxValue;
+            TaxiNode mint=t.taxiCollapsed[0];
+            foreach (TaxiNode tn in t.taxiCollapsed)
+            {
+                int dsq=(int)Vector2.DistanceSquared(Display.SpaceCoords(tn.position),new Vector2(Mouse.GetState().X,Mouse.GetState().Y));
+                if (min > dsq && tn.canHold)
+                {
+                    min = dsq;
+                    mint = tn;
+                }
+            }
+            dotpos = mint.position;
+            dotpos.X -= 8;
+            dotpos.Y -= 8;
+
             base.Update(gameTime);
         }
 
@@ -97,12 +107,17 @@ namespace GroundControl
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+
+            Rectangle final = new Rectangle((int)dotpos.X, (int)dotpos.Y, 16, 16);
             
-            
-            basicEffect.CurrentTechnique.Passes[0].Apply(); //apparently does pixel shaders and stuff haha
+
+            Display.basicEffect.CurrentTechnique.Passes[0].Apply(); //apparently does pixel shaders and stuff haha
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             t.Draw();
+            spriteBatch.Begin();
+            spriteBatch.Draw(tex, Display.SpaceCoords(dotpos), Color.White);
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }

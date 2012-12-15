@@ -120,6 +120,7 @@
     <Compile Include="TaxiNode.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="dot.png" />
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
     <Content Include="Triangulator.dll">
