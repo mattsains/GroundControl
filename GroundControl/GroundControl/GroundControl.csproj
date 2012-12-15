@@ -115,7 +115,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="GroundControl.cs" />
-    <Compile Include="Taxiway.cs" />
+    <Compile Include="Airport.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

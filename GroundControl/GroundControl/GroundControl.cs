@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Triangulator;
+using System.Diagnostics;
 
 namespace GroundControl
 {
@@ -21,8 +22,7 @@ namespace GroundControl
         SpriteBatch spriteBatch;
 
         BasicEffect basicEffect;
-
-        Taxiway t;
+        Airport t;
 
         public GroundControl()
         {
@@ -43,9 +43,10 @@ namespace GroundControl
             basicEffect = new BasicEffect(graphics.GraphicsDevice);
             basicEffect.VertexColorEnabled = true;
             basicEffect.Projection = Matrix.CreateOrthographicOffCenter
-               (0, graphics.GraphicsDevice.Viewport.Width,     // left, right
-                graphics.GraphicsDevice.Viewport.Height, 0,    // bottom, top
+               (0, 1280,     // left, right
+                778, 0,    // bottom, top
                 0, 1);                                         // near, far plane
+            this.IsMouseVisible = true;
 
             base.Initialize();
         }
@@ -62,7 +63,7 @@ namespace GroundControl
             Display.GraphicsDevice = GraphicsDevice;
 
             // TODO: use this.Content to load your game content here
-            t = new Taxiway("a");
+            t = new Airport("airports/fape");
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace GroundControl
                 this.Exit();
 
             // TODO: Add your update logic here
-
+            
             base.Update(gameTime);
         }
 
@@ -96,7 +97,7 @@ namespace GroundControl
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Green);
             
             basicEffect.CurrentTechnique.Passes[0].Apply(); //apparently does pixel shaders and stuff haha
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;

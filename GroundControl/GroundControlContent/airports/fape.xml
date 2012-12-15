@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Airport Icao="FAPE">
+  <Apron name="taxiway A">
+    <Vertex x="882" y="2" />
+    <Vertex x="795" y="56" />
+    <!-- -->
+    <Vertex x="751" y="81" />
+    <Vertex x="525" y="206" />
+    <Vertex x="515" y="221" />
+    <Vertex x="128" y="469" />
+    <Vertex x="117" y="486" />
+    <Vertex x="117" y="496" />
+    <Vertex x="151" y="555" />
+    <Vertex x="167" y="546" />
+    <Vertex x="156" y="539" />
+    <Vertex x="132" y="492" />
+    <Vertex x="138" y="478" />
+    <Vertex x="684" y="123" />
+    <Vertex x="782" y="81" />
+    <!-- seems to break with these vertices:
+    <Vertex x="805" y="72" />
+    <Vertex x="785" y="85" />
+    -->
+    <!-- -->
+    <Vertex x="803" y="68" />
+    <Vertex x="885" y="15" />
+    <Vertex x="900" y="14" />
+    <Vertex x="935" y="59" />
+    <Vertex x="933" y="69" />
+    <Vertex x="949" y="59" />
+    <Vertex x="913" y="9" />
+    <Vertex x="901" y="4" />
+  </Apron>
+  <Apron name="Apron A">
+    <Vertex x="523" y="207" />
+    <Vertex x="752" y="82" />
+    <Vertex x="738" y="70" />
+    <Vertex x="724" y="49" />
+    <Vertex x="511" y="183" />
+  </Apron>
+  <Apron name="Taxiway A2">
+    <Vertex x="496" y="245" />
+    <Vertex x="542" y="314" />
+    <Vertex x="545" y="312" />
+    <Vertex x="500" y="244" />
+  </Apron>
+</Airport>
