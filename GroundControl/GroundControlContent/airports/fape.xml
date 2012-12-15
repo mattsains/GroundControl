@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Airport Icao="FAPE">
+<Airport Icao="FAPE" color="#1b5f09">
   <Apron name="taxiway A">
     <Vertex x="882" y="2" />
     <Vertex x="795" y="56" />
@@ -15,7 +15,7 @@
     <Vertex x="156" y="539" />
     <Vertex x="132" y="492" />
     <Vertex x="138" y="478" />
-    <Vertex x="684" y="123" />
+    <Vertex x="684" y="128" />
     <Vertex x="782" y="81" />
     <!-- seems to break with these vertices:
     <Vertex x="805" y="72" />
@@ -25,13 +25,13 @@
     <Vertex x="803" y="68" />
     <Vertex x="885" y="15" />
     <Vertex x="900" y="14" />
-    <Vertex x="935" y="59" />
+    <Vertex x="934" y="59" />
     <Vertex x="933" y="69" />
     <Vertex x="949" y="59" />
     <Vertex x="913" y="9" />
     <Vertex x="901" y="4" />
   </Apron>
-  <Apron name="Apron A">
+  <Apron name="Apron A" color="#707070">
     <Vertex x="523" y="207" />
     <Vertex x="752" y="82" />
     <Vertex x="738" y="70" />
@@ -44,4 +44,48 @@
     <Vertex x="545" y="312" />
     <Vertex x="500" y="244" />
   </Apron>
+  <Apron name="runway 8/26" color="#000000">
+    <Vertex x="114" y="578" />
+    <Vertex x="126" y="601" />
+    <Vertex x="964" y="80" />
+    <Vertex x="950" y="58" />
+  </Apron>
+  <Apron name="runway 17/35" color="#000000">
+    <Vertex x="803" y="68" />
+    <Vertex x="782" y="81" />
+    <Vertex x="1249" y="763" />
+    <Vertex x="1269" y="749" />
+  </Apron>
+
+  <Nodes>
+    <Runway x="163" y="562" id="rnw8" canhold="true"/>
+    <Taxiway x="124" y="495" id="txA1.s" canhold="true"/>
+    <Taxiway x="130" y="475" id="txA1.e" canhold="false"/>
+    <Taxiway x="386" y="309" id="txA1.B" canhold="true"/><!--a1/b intersect. B has not been filled in yet! but it will connect here-->
+    <Taxiway x="494" y="239" id="txA1.A2.C" canhold="true"/><!--a2/c intersect. C has not been filled in yet! but it will connect here-->
+    <Taxiway x="550" y="321" id="rnw8.26" canhold="true"/><!--end of a2.-->
+    <Taxiway x="714" y="102" id="txA.e" canhold="false"/><!--bendpoint near PAPI-->
+    <Taxiway x="789" y="69" id="txA.17" canhold="true"/><!--turn for rnwy 17-->
+    <Runway x="806" y="93" id="rnw17" canhold="true"/>
+    <Taxiway x="882" y="9" id="txA3.w" canhold="false"/><!--west bendpoint of A3-->
+    <Taxiway x="902" y="9" id="txA3.e" canhold="false" /><!--east bendpoint of A3-->
+    <Taxiway x="923" y="33" id="txA3.h" canhold="true"/><!--holdpoint rnwy 26-->
+    <Runway x="951" y="72" id="rnw26" canhold="true" />
+  </Nodes>
+  <Edges>
+    <connect from="rnw8" to="txA1.s" tag="8"/>
+    <connect from="rnw8" to="rnw8.26" tag="8"/>
+    <connect from="txA1.s" to="txA1.e" tag="A1"/>
+    <connect from="txA1.e" to="txA1.B" tag="A1"/>
+    <connect from="txA1.B" to="txA1.A2.C" tag="A1"/>
+    <connect from="txA1.A2.C" to="rnw8.26" tag="A2"/>
+    <connect from="txA1.A2.C" to="txA.e" tag="A"/>
+    <connect from="rnw8.26" to="rnw26" tag="8/26"/>
+    <connect from="txA.e" to="txA.17" tag="A"/>
+    <connect from="txA.17" to="rnw17" tag="17-THR"/>
+    <connect from="txA.17" to="txA3.w" tag="A3"/>
+    <connect from="txA3.w" to="txA3.e" tag="A3"/>
+    <connect from="txA3.e" to="txA3.h" tag="A3"/>
+    <connect from="txA3.h" to="rnw26" tag="A3"/>
+  </Edges>
 </Airport>

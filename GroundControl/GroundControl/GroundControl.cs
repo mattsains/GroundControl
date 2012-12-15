@@ -47,7 +47,7 @@ namespace GroundControl
                 778, 0,    // bottom, top
                 0, 1);                                         // near, far plane
             this.IsMouseVisible = true;
-
+            Window.AllowUserResizing = true;
             base.Initialize();
         }
 
@@ -97,7 +97,7 @@ namespace GroundControl
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Green);
+            
             
             basicEffect.CurrentTechnique.Passes[0].Apply(); //apparently does pixel shaders and stuff haha
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
