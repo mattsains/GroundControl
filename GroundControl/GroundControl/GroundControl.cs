@@ -63,9 +63,8 @@ namespace GroundControl
             t = new Airport("airports/fape");
             tex = Content.Load<Texture2D>("dot");
             a=new Aircraft(Content.Load<Texture2D>("dumbplane"),new Vector2());
-            a.Queue(t.taxiCollapsed[0].position);
+            a.Queue(t.taxiways.Vertices[0].position);
 
-            
         }
 
         /// <summary>
@@ -90,8 +89,8 @@ namespace GroundControl
 
             // TODO: Add your update logic here
             int min = int.MaxValue;
-            TaxiNode mint=t.taxiCollapsed[0];
-            foreach (TaxiNode tn in t.taxiCollapsed)
+            TaxiNode mint=t.taxiways.Vertices[0];
+            foreach (TaxiNode tn in t.taxiways.Vertices)
             {
                 int dsq=(int)Vector2.DistanceSquared(Display.SpaceCoords(tn.position),new Vector2(Mouse.GetState().X,Mouse.GetState().Y));
                 if (min > dsq && tn.canHold)

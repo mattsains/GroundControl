@@ -17,8 +17,7 @@ namespace GroundControl
         public string icao; // taxiway number (actually it's usually a letter)
         List<Tuple<List<Vector2>,Color>> aprons=new List<Tuple<List<Vector2>,Color>>();
 
-        public Graph<TaxiNode> taxiways;
-        public List<TaxiNode> taxiCollapsed;
+        public Graph<TaxiNode> taxiways = new Graph<TaxiNode>();
 
         //cache of graphics properties
         private List<vpcind> graphicsPolys=new List<vpcind>();
@@ -46,19 +45,18 @@ namespace GroundControl
                     }
                 }
             }
-            List<Graph<TaxiNode>> graphs = new List<Graph<TaxiNode>>();
-            taxiCollapsed = new List<TaxiNode>();
+            
             while (XMLAsset.Read())
             {
                 if (XMLAsset.NodeType == XmlNodeType.Element && XMLAsset.Name == "Apron")
                 {
-                    List<Vector2> apron=new List<Vector2>();
+                    List<Vector2> apron = new List<Vector2>();
                     Color color = Color.Gray;
                     try
                     {
                         int c = Convert.ToInt32(XMLAsset.GetAttribute("color").Substring(1), 16);
-                        color.R = (byte)((c & 0xFF0000)>>16);
-                        color.G = (byte)((c & 0x00FF00)>>8);
+                        color.R = (byte)((c & 0xFF0000) >> 16);
+                        color.G = (byte)((c & 0x00FF00) >> 8);
                         color.B = (byte)(c & 0x0000FF);
                     }
                     catch (Exception) { }
@@ -80,36 +78,35 @@ namespace GroundControl
                             apron.Add(new Vector2((float)x, (float)y));
                         }
                     }
-                    aprons.Add(new Tuple<List<Vector2>,Color>(apron,color));
+                    aprons.Add(new Tuple<List<Vector2>, Color>(apron, color));
                     continue;
                 }
-                
+
 
                 if (XMLAsset.NodeType == XmlNodeType.Element && XMLAsset.Name == "Nodes")
                 {
-                    
+
                     while (XMLAsset.Read())
                     {
                         if (XMLAsset.NodeType == XmlNodeType.EndElement) { break; }
                         if (XMLAsset.NodeType != XmlNodeType.Element) { continue; }
                         NodeType nodeType;
-                        switch(XMLAsset.Name)
+                        switch (XMLAsset.Name)
                         {
-                            case "Runway": nodeType=NodeType.Runway; break;
-                            case "Gate": nodeType=NodeType.Gate; break;
+                            case "Runway": nodeType = NodeType.Runway; break;
+                            case "Gate": nodeType = NodeType.Gate; break;
                             case "Taxiway":
-                            default: nodeType=NodeType.Taxiway; break;
+                            default: nodeType = NodeType.Taxiway; break;
                         }
-                        taxiCollapsed.Add(new TaxiNode(XMLAsset.GetAttribute("id"), //the node's ID
+                        taxiways.Vertices.Add(new TaxiNode(XMLAsset.GetAttribute("id"), //the node's ID
                                                 new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))), //the position
                                                 nodeType, //type
                                                 bool.Parse(XMLAsset.GetAttribute("canhold"))));//whether you can hold at this point
-                        graphs.Add(new Graph<TaxiNode>(taxiCollapsed[taxiCollapsed.Count-1]));
                         //wow.
                     }
                     continue;
                 }
-                if (XMLAsset.NodeType==XmlNodeType.Element && XMLAsset.Name=="Edges")
+                if (XMLAsset.NodeType == XmlNodeType.Element && XMLAsset.Name == "Edges")
                 {
                     while (XMLAsset.Read())
                     {
@@ -123,22 +120,20 @@ namespace GroundControl
                             string toid = XMLAsset.GetAttribute("to");
                             string tag = XMLAsset.GetAttribute("tag");
 
-                            Graph<TaxiNode> fromNode=null;
-                            Graph<TaxiNode> toNode=null;
+                            TaxiNode fromNode = null;
+                            TaxiNode toNode = null;
 
                             //search for the trivial (or maybe not by this stage) graph
-                            foreach (Graph<TaxiNode> node in graphs)
+                            foreach (TaxiNode node in taxiways.Vertices)
                             {
-                                if (node.node.id == fromid) fromNode = node;
-                                if (node.node.id == toid) toNode = node;
+                                if (node.id == fromid) fromNode = node;
+                                if (node.id == toid) toNode = node;
                                 if (fromNode != null && toNode != null) break; //we're done searching
                             }
-                            fromNode.Connect(toNode, tag);
+                            taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).LengthSquared());
                         }
 
                     }
-                    //time to tie off the graph by attaching any node to the taxiway graph, so it isn't eaten by garbage collection
-                    taxiways = graphs[0];
                 }
             }
             //</initialize>
