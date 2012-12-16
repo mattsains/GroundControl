@@ -22,6 +22,10 @@ namespace GroundControl
             this.position = position;
             this.canHold = canHold;
         }
+        public override string ToString()
+        {
+            return id;
+        }
     }
     
 }

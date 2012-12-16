@@ -27,6 +27,7 @@ namespace GroundControl
         Texture2D tex;
         Vector2 dotpos;
 
+        Stack<TaxiNode> path;
         bool lastMouse = false;
         public GroundControl()
         {
@@ -99,7 +100,8 @@ namespace GroundControl
                     mint = tn;
                 }
             }
-            dotpos = mint.position;
+            //mint is now the closest to the mouse
+            path = t.taxiways.Dijkstra(t.taxiways.Vertices[0], mint);
             if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouse)
             {
                 lastMouse = true;
@@ -132,7 +134,8 @@ namespace GroundControl
 
             t.Draw();
             spriteBatch.Begin();
-            spriteBatch.Draw(tex, Display.SpaceCoords(dotpos), Color.White);
+            while (path.Count>0)
+                spriteBatch.Draw(tex, Display.SpaceCoords(path.Pop().position), Color.White);
             a.draw();
             spriteBatch.End();
             base.Draw(gameTime);

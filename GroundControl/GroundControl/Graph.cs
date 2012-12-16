@@ -53,13 +53,13 @@ namespace GroundControl
         {
             Dictionary<T, int> dist = new Dictionary<T, int>();
             Dictionary<T, T> previous = new Dictionary<T, T>();
-            List<T> Q = new List<T>();
+            Heap<T> queue = new Heap<T>();
             foreach (T v in Vertices)                                // Initializations
             {
                 dist[v] = int.MaxValue;                                  // Unknown distance function from 
                 // source to v
                 previous[v] = default(T);      // Previous node in optimal path
-                Q.Add(v);
+                queue.Push(v,int.MaxValue);
             }                                             // from source
 
             dist[source] = 0;                                        // Distance from source to source
@@ -67,18 +67,18 @@ namespace GroundControl
             // All nodes in the graph are
             // unoptimized - thus are in Q
             T u = default(T); // Start node in first case
-            while (Q.Count > 0)// The main loop
+            while (queue.Count > 0)// The main loop
             {
 
                 int minDist = int.MaxValue;
-                foreach (KeyValuePair<T, int> distance in dist)
-                    if (minDist > distance.Value)
+                foreach (KeyValuePair<T,int> distance in dist)
+                    if (minDist > distance.Value && queue.Contains(distance.Key))
                     {
                         u = distance.Key;
                         minDist = distance.Value;
                     }
 
-                Q.Remove(u);
+                queue.Remove(u);
                 if (u.Equals(target))
                     break;
 
@@ -92,13 +92,14 @@ namespace GroundControl
                     {
                         dist[v] = alt;
                         previous[v] = u;
-                        // decrease-key v in Q;                           // Reorder v in the Queue
+                        queue.Remove(v);                           // Reorder v in the Queue
+                        queue.Push(v, dist[v]);
                     }
                 }
             }
             Stack<T> S = new Stack<T>();
             u = target;
-            while (!previous[u].Equals(default(T)))                                   // Construct the shortest path with a stack S
+            while (previous[u]!=null)                                   // Construct the shortest path with a stack S
             {
                 S.Push(u);                          // Push the vertex into the stack
                 u = previous[u];                                            // Traverse from target to source

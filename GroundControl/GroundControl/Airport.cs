@@ -130,7 +130,7 @@ namespace GroundControl
                                 if (node.id == toid) toNode = node;
                                 if (fromNode != null && toNode != null) break; //we're done searching
                             }
-                            taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).LengthSquared());
+                            taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()); //square roots are expensive!
                         }
 
                     }
