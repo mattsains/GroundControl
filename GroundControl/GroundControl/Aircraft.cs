@@ -15,6 +15,7 @@ namespace GroundControl
         Texture2D texture;
         Vector2 position;
         Vector2 velocity = new Vector2();
+        float direction = 0;
 
         Queue<Vector2> queue=new Queue<Vector2>();
         public Aircraft(Texture2D texture, Vector2 position)
@@ -24,21 +25,11 @@ namespace GroundControl
         }
         public void update()
         {
-            const int threash = 20;
+            const int threash = 10;
             if (queue.Count > 0)
             {
-                Rectangle search;
-                if (velocity.X > 0)
-                {
-                    if (velocity.Y > 0) search = new Rectangle((int)position.X, (int)position.Y, (int)velocity.X*threash, (int)velocity.Y*threash);
-                    else search = new Rectangle((int)position.X, (int)(position.Y + velocity.X), (int)velocity.X*threash, -(int)velocity.Y*threash);
-                }
-                else
-                {
-                    if (velocity.Y > 0) search = new Rectangle((int)(position.X + velocity.X), (int)position.Y, -(int)velocity.X * threash, (int)velocity.Y * threash);
-                    else search = new Rectangle((int)(position.X + velocity.X), (int)(position.Y + velocity.X), -(int)velocity.X * threash, -(int)velocity.Y * threash);
-                }
-                Debug.Print("new rectangle: {0}", search.ToString());
+                Rectangle search= new Rectangle((int)position.X-16, (int)position.Y-16, (int)threash+16, (int)threash+16);
+
                 if (search.Intersects(new Rectangle((int)queue.Peek().X, (int)queue.Peek().Y, 5, 5)))
                 {
                     queue.Dequeue();
@@ -49,6 +40,10 @@ namespace GroundControl
                     Vector2 temp = queue.Peek() - position;
                     temp.Normalize();
                     this.velocity = new Vector2(temp.X * speed, temp.Y * speed);
+                    direction = (float)Math.PI/2 - (float)Math.Atan(-velocity.Y / velocity.X);
+                    if (velocity.X < 0 && velocity.Y > 0)
+                        //special case :(
+                        direction += (float)Math.PI;
                 }
 
             }
@@ -57,7 +52,7 @@ namespace GroundControl
         }
         public void draw()
         {
-            Display.SpriteBatch.Draw(texture, Display.SpaceCoords(position), Color.White);
+            Display.SpriteBatch.Draw(texture, new Rectangle((int)Display.WorldToScreen(position).X, (int)Display.WorldToScreen(position).Y,32,32),new Rectangle(0,0,32,32),Color.White,direction,new Vector2(16,16),SpriteEffects.None,0);
         }
         public void Queue(Vector2 position)
         {

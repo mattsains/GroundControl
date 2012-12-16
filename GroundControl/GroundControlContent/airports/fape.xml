@@ -63,8 +63,34 @@
     <Taxiway x="130" y="475" id="txA1.e" canhold="false"/>
     <Taxiway x="386" y="309" id="txA1.B" canhold="true"/><!--a1/b intersect. B has not been filled in yet! but it will connect here-->
     <Taxiway x="494" y="239" id="txA1.A2.C" canhold="true"/><!--a2/c intersect. C has not been filled in yet! but it will connect here-->
-    <Taxiway x="550" y="321" id="rnw8.26" canhold="true"/><!--end of a2.-->
-    <Taxiway x="714" y="102" id="txA.e" canhold="false"/><!--bendpoint near PAPI-->
+    <Runway x="550" y="321" id="rnw8.26" canhold="true"/><!--end of a2.-->
+    <!--A apron bendpoints-->
+    <Taxiway x="546" y="207" id="txaA12" canhold="false"/>
+    <Taxiway x="567" y="194" id="txaA11" canhold="false"/>
+    <Taxiway x="584" y="183" id="txaA10" canhold="false"/>
+    <Taxiway x="604" y="170" id="txaA9" canhold="false"/>
+    <Taxiway x="622" y="159" id="txaA8" canhold="false"/>
+    <Taxiway x="636" y="150" id="txaA7" canhold="false"/>
+    <Taxiway x="652" y="141" id="txaA6" canhold="false"/>
+    <Taxiway x="666" y="132" id="txaA5" canhold="false"/>
+    <Taxiway x="681" y="122" id="txaA4" canhold="false"/>
+    <Taxiway x="697" y="114" id="txaA3" canhold="false"/>
+    <Taxiway x="713" y="107" id="txaA2" canhold="false"/>
+    <Taxiway x="730" y="101" id="txaA1" canhold="false"/>
+    <!--A apron gates-->
+    <Gate x="710" y="71" id="gateA1" tag="A1" />
+    <Gate x="696" y="80" id="gateA2" tag="A2" />
+    <Gate x="681" y="89" id="gateA3" tag="A3" />
+    <Gate x="665" y="99" id="gateA4" tag="A4" />
+    <Gate x="651" y="108" id="gateA5" tag="A5" />
+    <Gate x="636" y="117" id="gateA6" tag="A6" />
+    <Gate x="621" y="127" id="gateA7" tag="A7" />
+    <Gate x="606" y="136" id="gateA8" tag="A8" />
+    <Gate x="589" y="146" id="gateA9" tag="A19" />
+    <Gate x="569" y="159" id="gateA10" tag="A10" />
+    <Gate x="551" y="171" id="gateA11" tag="A11" />
+    <Gate x="531" y="183" id="gateA12" tag="A12" />
+    <!--end A apron-->
     <Taxiway x="789" y="69" id="txA.17" canhold="true"/><!--turn for rnwy 17-->
     <Runway x="806" y="93" id="rnw17" canhold="true"/>
     <Taxiway x="882" y="9" id="txA3.w" canhold="false"/><!--west bendpoint of A3-->
@@ -79,9 +105,33 @@
     <connect from="txA1.e" to="txA1.B" tag="A1"/>
     <connect from="txA1.B" to="txA1.A2.C" tag="A1"/>
     <connect from="txA1.A2.C" to="rnw8.26" tag="A2"/>
-    <connect from="txA1.A2.C" to="txA.e" tag="A"/>
+    <connect from="txA1.A2.C" to="txaA12" tag="A"/>
+    <!--gates-->
+    <connect from="txaA12" to="gateA12" tag="Gate A12"/>
+    <connect from="txaA12" to="txaA11" tag="A"/>
+    <connect from="txaA11" to="gateA11" tag="Gate A11"/>
+    <connect from="txaA11" to="txaA10" tag="A"/>
+    <connect from="txaA10" to="gateA10" tag="Gate A10"/>
+    <connect from="txaA10" to="txaA9" tag="A"/>
+    <connect from="txaA9" to="gateA9" tag="Gate A9"/>
+    <connect from="txaA9" to="txaA8" tag="A"/>
+    <connect from="txaA8" to="gateA8" tag="Gate A8"/>
+    <connect from="txaA8" to="txaA7" tag="A"/>
+    <connect from="txaA7" to="gateA7" tag="Gate A7"/>
+    <connect from="txaA7" to="txaA6" tag="A"/>
+    <connect from="txaA6" to="gateA6" tag="Gate A6"/>
+    <connect from="txaA6" to="txaA5" tag="A"/>
+    <connect from="txaA5" to="gateA5" tag="Gate A5"/>
+    <connect from="txaA5" to="txaA4" tag="A"/>
+    <connect from="txaA4" to="gateA4" tag="Gate A4"/>
+    <connect from="txaA4" to="txaA3" tag="A"/>
+    <connect from="txaA3" to="gateA3" tag="Gate A3"/>
+    <connect from="txaA3" to="txaA2" tag="A"/>
+    <connect from="txaA2" to="gateA2" tag="Gate A2"/>
+    <connect from="txaA2" to="txaA1" tag="A"/>
+    <connect from="txaA1" to="gateA1" tag="Gate A1"/>
     <connect from="rnw8.26" to="rnw26" tag="8/26"/>
-    <connect from="txA.e" to="txA.17" tag="A"/>
+    <connect from="txaA1" to="txA.17" tag="A"/>
     <connect from="txA.17" to="rnw17" tag="17-THR"/>
     <connect from="txA.17" to="txA3.w" tag="A3"/>
     <connect from="txA3.w" to="txA3.e" tag="A3"/>

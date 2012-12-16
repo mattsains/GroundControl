@@ -137,6 +137,10 @@ namespace GroundControl
             this.To = to;
             this.Tag = tag;
             this.Weight = weight;
-        }   
+        }
+        public override string ToString()
+        {
+            return string.Format("From {0} to {1} weight: {2}", From.ToString(), To.ToString(), Weight);
+        }
     }
 }

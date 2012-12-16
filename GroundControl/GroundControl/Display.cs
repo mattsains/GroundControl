@@ -29,9 +29,14 @@ namespace GroundControl
             
             return new vpcind(vpc,sIndices);
         }
-        public static Vector2 SpaceCoords(Vector2 orig)
+        public static Vector2 WorldToScreen(Vector2 orig)
         {
             Vector3 v3=GraphicsDevice.Viewport.Project(new Vector3(orig, 0), basicEffect.Projection, basicEffect.View, basicEffect.World);
+            return new Vector2(v3.X, v3.Y);
+        }
+        public static Vector2 ScreenToWorld(Vector2 orig)
+        {
+            Vector3 v3 = GraphicsDevice.Viewport.Unproject(new Vector3(orig, 0), basicEffect.Projection, basicEffect.View, basicEffect.World);
             return new Vector2(v3.X, v3.Y);
         }
         public static void Initialise(SpriteBatch SpriteBatch, GraphicsDevice GraphicsDevice)

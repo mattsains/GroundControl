@@ -21,11 +21,11 @@ namespace GroundControl
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        BasicEffect basicEffect;
         Airport t;
         Aircraft a;
         Texture2D tex;
         Vector2 dotpos;
+        TaxiNode current;
 
         Stack<TaxiNode> path;
         bool lastMouse = false;
@@ -65,7 +65,7 @@ namespace GroundControl
             tex = Content.Load<Texture2D>("dot");
             a=new Aircraft(Content.Load<Texture2D>("dumbplane"),new Vector2());
             a.Queue(t.taxiways.Vertices[0].position);
-
+            current = t.taxiways.Vertices[0];
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace GroundControl
             TaxiNode mint=t.taxiways.Vertices[0];
             foreach (TaxiNode tn in t.taxiways.Vertices)
             {
-                int dsq=(int)Vector2.DistanceSquared(Display.SpaceCoords(tn.position),new Vector2(Mouse.GetState().X,Mouse.GetState().Y));
+                int dsq=(int)Vector2.DistanceSquared(Display.WorldToScreen(tn.position),new Vector2(Mouse.GetState().X,Mouse.GetState().Y));
                 if (min > dsq && tn.canHold)
                 {
                     min = dsq;
@@ -101,12 +101,22 @@ namespace GroundControl
                 }
             }
             //mint is now the closest to the mouse
-            path = t.taxiways.Dijkstra(t.taxiways.Vertices[0], mint);
+            path = t.taxiways.Dijkstra(current, mint);
+            path.Push(current);
+
             if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouse)
             {
                 lastMouse = true;
-                a.Queue(dotpos);
-                
+                Debug.Print("Clicked at: {0},{1}", Mouse.GetState().X, Mouse.GetState().Y);
+                Stack<TaxiNode> temppath = new Stack<TaxiNode>();
+                while (path.Count > 0)
+                {
+                    TaxiNode temptn = path.Pop();
+                    a.Queue(temptn.position);
+                    current = temptn;
+                    temppath.Push(temptn);
+                }
+                path = temppath;
             }
             else if (Mouse.GetState().LeftButton==ButtonState.Released)
             {
@@ -133,9 +143,16 @@ namespace GroundControl
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             t.Draw();
+
+            if (path.Count > 1)
+            {
+                VertexPositionColor[] lines = new VertexPositionColor[path.Count];
+                while (path.Count > 0)
+                    lines[lines.Length - path.Count] = new VertexPositionColor(new Vector3(path.Pop().position, 0), Color.Pink);
+
+                Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
+            }
             spriteBatch.Begin();
-            while (path.Count>0)
-                spriteBatch.Draw(tex, Display.SpaceCoords(path.Pop().position), Color.White);
             a.draw();
             spriteBatch.End();
             base.Draw(gameTime);

@@ -98,7 +98,12 @@ namespace GroundControl
                             case "Taxiway":
                             default: nodeType = NodeType.Taxiway; break;
                         }
-                        taxiways.Vertices.Add(new TaxiNode(XMLAsset.GetAttribute("id"), //the node's ID
+                        if (nodeType == NodeType.Gate)
+                            taxiways.Vertices.Add(new TaxiNode(XMLAsset.GetAttribute("id"),//the gate's ID
+                                                new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))),//the position
+                                                nodeType, //it's a gate
+                                                XMLAsset.GetAttribute("tag")));
+                        else taxiways.Vertices.Add(new TaxiNode(XMLAsset.GetAttribute("id"), //the node's ID
                                                 new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))), //the position
                                                 nodeType, //type
                                                 bool.Parse(XMLAsset.GetAttribute("canhold"))));//whether you can hold at this point
@@ -130,13 +135,15 @@ namespace GroundControl
                                 if (node.id == toid) toNode = node;
                                 if (fromNode != null && toNode != null) break; //we're done searching
                             }
-                            taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()); //square roots are expensive!
+                            if (fromNode.nodeType==NodeType.Runway && toNode.nodeType==NodeType.Runway)
+                                taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()*1000); //square roots are expensive!
+                            else taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()); //square roots are expensive!
                         }
 
                     }
                 }
             }
-            //</initialize>
+            //Add to the polygon cache
             foreach (Tuple<List<Vector2>,Color> apron in aprons)
                 graphicsPolys.Add(Display.Triangulate(apron.Item1, apron.Item2));
         }

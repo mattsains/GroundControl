@@ -11,16 +11,32 @@ namespace GroundControl
     class TaxiNode
     {
         public string id;
+        public string GateTag;
         public Vector2 position;
         public NodeType nodeType;
         public bool canHold; //whether this is somewhere a plane can stop, or just a kink in a taxiway or something
-        
+
+        /// <summary>
+        /// Dummy constructors that make sure that the right data is given. All the real work happens in Initialize
+        /// </summary>
+        public TaxiNode(string id, Vector2 position, NodeType nodeType, string GateTag)
+        {
+            if (nodeType != NodeType.Gate) throw new Exception("Tried to use the wrong initialization for non-Gate nodetype");
+            else this._Initialize(id, position, nodeType, false, GateTag);
+        }
         public TaxiNode(string id, Vector2 position, NodeType nodeType, bool canHold)
+        {
+            if (nodeType == NodeType.Gate) throw new Exception("Tried to use the wrong initialization for Gate nodetype");
+            else this._Initialize(id, position, nodeType, canHold, "");
+        }
+        private void _Initialize(string id, Vector2 position, NodeType nodeType, bool canHold, string GateTag)
         {
             this.id = id;
             this.nodeType = nodeType;
             this.position = position;
-            this.canHold = canHold;
+            if (nodeType != NodeType.Gate)
+                this.canHold = canHold;
+            else this.GateTag = GateTag;
         }
         public override string ToString()
         {
