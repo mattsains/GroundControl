@@ -23,8 +23,11 @@ namespace GroundControl
 
         BasicEffect basicEffect;
         Airport t;
+        Aircraft a;
         Texture2D tex;
         Vector2 dotpos;
+
+        bool lastMouse = false;
         public GroundControl()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -41,7 +44,7 @@ namespace GroundControl
         {
             // TODO: Add your initialization logic here
             // I want to draw lines. Therefore start a 3D projection. lol wut
-            Display.Initialise(spriteBatch,GraphicsDevice);
+            
             this.IsMouseVisible = true;
             Window.AllowUserResizing = true;
             base.Initialize();
@@ -55,11 +58,14 @@ namespace GroundControl
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            Display.Initialise(spriteBatch, GraphicsDevice);
             // TODO: use this.Content to load your game content here
             t = new Airport("airports/fape");
             tex = Content.Load<Texture2D>("dot");
+            a=new Aircraft(Content.Load<Texture2D>("dumbplane"),new Vector2());
+            a.Queue(t.taxiCollapsed[0].position);
 
+            
         }
 
         /// <summary>
@@ -95,9 +101,20 @@ namespace GroundControl
                 }
             }
             dotpos = mint.position;
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouse)
+            {
+                lastMouse = true;
+                a.Queue(dotpos);
+                
+            }
+            else if (Mouse.GetState().LeftButton==ButtonState.Released)
+            {
+                lastMouse = false;
+            }
             dotpos.X -= 8;
             dotpos.Y -= 8;
 
+            a.update();
             base.Update(gameTime);
         }
 
@@ -117,6 +134,7 @@ namespace GroundControl
             t.Draw();
             spriteBatch.Begin();
             spriteBatch.Draw(tex, Display.SpaceCoords(dotpos), Color.White);
+            a.draw();
             spriteBatch.End();
             base.Draw(gameTime);
         }

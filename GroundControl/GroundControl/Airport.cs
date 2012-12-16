@@ -17,7 +17,7 @@ namespace GroundControl
         public string icao; // taxiway number (actually it's usually a letter)
         List<Tuple<List<Vector2>,Color>> aprons=new List<Tuple<List<Vector2>,Color>>();
 
-        Graph<TaxiNode> taxiways;
+        public Graph<TaxiNode> taxiways;
         public List<TaxiNode> taxiCollapsed;
 
         //cache of graphics properties

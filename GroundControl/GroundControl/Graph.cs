@@ -33,6 +33,29 @@ namespace GroundControl
                 if (edge.Item1==node) return true;
             return false;
         }
+    }
+    class Graph2<T>
+    {
+        List<T> Vertices;
+        List<Tuple<T, T>> Edges = new List<Tuple<T, T>>();
+        public void Connect(T from, T to)
+        {
+            if (Vertices.Contains(from) && Vertices.Contains(to))
+            {
+                Edges.Add(new Tuple<T, T>(from, to));
+                Edges.Add(new Tuple<T, T>(to, from));
+            }
+        }
+        public List<T> IncidentTo(T node)
+        {
+            List<T> temp = new List<T>();
+            foreach (Tuple<T, T> edge in Edges)
+            {
+                if (edge.Item1.Equals(node)) temp.Add(edge.Item2);
+                if (edge.Item2.Equals(node)) temp.Add(edge.Item1);
+            }
+            return temp;
+        }
 
     }
 }
