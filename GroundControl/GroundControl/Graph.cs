@@ -51,22 +51,21 @@ namespace GroundControl
 
         public Stack<T> Dijkstra(T source, T target)
         {
-            Dictionary<T, int> dist = new Dictionary<T, int>();
-            Dictionary<T, T> previous = new Dictionary<T, T>();
+            Dictionary<T, int> dist = new Dictionary<T, int>(); //this will store the vertex "potential" distance
+            Dictionary<T, T> previous = new Dictionary<T, T>(); //this will store a vertex closer to the source than each vertex
             Heap<T> queue = new Heap<T>();
-            foreach (T v in Vertices)                                // Initializations
+
+            foreach (T v in Vertices)                                
             {
-                dist[v] = int.MaxValue;                                  // Unknown distance function from 
-                // source to v
-                previous[v] = default(T);      // Previous node in optimal path
-                queue.Push(v,int.MaxValue);
-            }                                             // from source
+                dist[v] = int.MaxValue;       //set the potentials to "infinity" - they are uncalculated as yet                           
+                previous[v] = default(T);     // Previous node in optimal path
+                queue.Push(v,int.MaxValue);   //add everything to the queue to be processed/followed
+            }                                          
 
-            dist[source] = 0;                                        // Distance from source to source
+            dist[source] = 0; //distance from the source to itself if zero                        
 
-            // All nodes in the graph are
-            // unoptimized - thus are in Q
-            T u = default(T); // Start node in first case
+            // intialize u - the current neighbour being followed
+            T u = default(T);
             while (queue.Count > 0)// The main loop
             {
 
@@ -75,34 +74,34 @@ namespace GroundControl
                     if (minDist > distance.Value && queue.Contains(distance.Key))
                     {
                         u = distance.Key;
-                        minDist = distance.Value;
+                        minDist = distance.Value; //find the closest vertex in the process queue
                     }
 
-                queue.Remove(u);
-                if (u.Equals(target))
+                queue.Remove(u); //remove this vertex from the queue
+                if (u.Equals(target)) //if we're at the target, we've found the shortes path
                     break;
 
-                if (dist[u] == int.MaxValue)
-                    break;                                             // inaccessible from source
+                if (dist[u] == int.MaxValue)// no incident vertices are in the queue.
+                    break;                  // this means that there is no path
 
-                foreach (T v in IncidentTo(u))// where v has not yet been
+                foreach (T v in IncidentTo(u)) // calculate the neighbours' distances in preparation of the next iteration.
                 {                                                    // removed from Q.
                     int alt = dist[u] + GetWeight(u, v);
                     if (alt < dist[v])                                 // Relax (u,v,a)
                     {
                         dist[v] = alt;
                         previous[v] = u;
-                        queue.Remove(v);                           // Reorder v in the Queue
-                        queue.Push(v, dist[v]);
+                        queue.Remove(v);        // update the neighbour's priorities
+                        queue.Push(v, dist[v]); // now the closest neighbour will be favoured in finding a path
                     }
                 }
             }
             Stack<T> S = new Stack<T>();
             u = target;
-            while (previous[u]!=null)                                   // Construct the shortest path with a stack S
+            while (previous[u]!=null)  //follow previous-links from the target to the source
             {
-                S.Push(u);                          // Push the vertex into the stack
-                u = previous[u];                                            // Traverse from target to source
+                S.Push(u);             // great use of a Stack!
+                u = previous[u];
             }
             return S;
         }
