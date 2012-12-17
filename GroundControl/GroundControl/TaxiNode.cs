@@ -22,7 +22,7 @@ namespace GroundControl
         public TaxiNode(string id, Vector2 position, NodeType nodeType, string GateTag)
         {
             if (nodeType != NodeType.Gate) throw new Exception("Tried to use the wrong initialization for non-Gate nodetype");
-            else this._Initialize(id, position, nodeType, false, GateTag);
+            else this._Initialize(id, position, nodeType, true, GateTag);
         }
         public TaxiNode(string id, Vector2 position, NodeType nodeType, bool canHold)
         {
