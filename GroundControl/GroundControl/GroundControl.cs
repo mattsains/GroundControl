@@ -21,11 +21,8 @@ namespace GroundControl
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Airport t;
-        Aircraft a;
-        Texture2D tex;
-        Vector2 dotpos;
-        TaxiNode current;
+        Airport airport;
+        Aircraft airplane;
 
         Stack<TaxiNode> path;
         bool lastMouse = false;
@@ -43,9 +40,6 @@ namespace GroundControl
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            // I want to draw lines. Therefore start a 3D projection. lol wut
-            
             this.IsMouseVisible = true;
             Window.AllowUserResizing = true;
             base.Initialize();
@@ -59,13 +53,12 @@ namespace GroundControl
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            Display.Initialise(spriteBatch, GraphicsDevice);
-            // TODO: use this.Content to load your game content here
-            t = new Airport("airports/fape");
-            tex = Content.Load<Texture2D>("dot");
-            a=new Aircraft(Content.Load<Texture2D>("dumbplane"),new Vector2());
-            a.Queue(t.taxiways.Vertices[0].position);
-            current = t.taxiways.Vertices[0];
+            
+            airport = new Airport("airports/fape");//TODO: this should be dynamic from whatever is in /airports
+
+            Display.Initialise(spriteBatch, GraphicsDevice,airport.width,airport.height); //Display helps us with drawing. It's static
+
+            airplane = new Aircraft(Content.Load<Texture2D>("dumbplane"), airport.taxiways.Vertices[0]); //just start anywhere to test
         }
 
         /// <summary>
@@ -90,42 +83,32 @@ namespace GroundControl
 
             // TODO: Add your update logic here
             int min = int.MaxValue;
-            TaxiNode mint=t.taxiways.Vertices[0];
-            foreach (TaxiNode tn in t.taxiways.Vertices)
+            TaxiNode mint=airport.taxiways.Vertices[0];
+            foreach (TaxiNode tn in airport.taxiways.Vertices)
             {
                 int dsq=(int)Vector2.DistanceSquared(Display.WorldToScreen(tn.position),new Vector2(Mouse.GetState().X,Mouse.GetState().Y));
-                if (min > dsq && tn.canHold)
+                if (min > dsq /*&& tn.canHold*/)
                 {
                     min = dsq;
                     mint = tn;
                 }
             }
             //mint is now the closest to the mouse
-            path = t.taxiways.Dijkstra(current, mint);
-            path.Push(current);
+            path = airport.taxiways.Dijkstra(airplane.destination, mint);
+            path.Push(airplane.destination);
 
             if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouse)
             {
                 lastMouse = true;
                 Debug.Print("Clicked at: {0},{1}", Mouse.GetState().X, Mouse.GetState().Y);
-                Stack<TaxiNode> temppath = new Stack<TaxiNode>();
-                while (path.Count > 0)
-                {
-                    TaxiNode temptn = path.Pop();
-                    a.Queue(temptn.position);
-                    current = temptn;
-                    temppath.Push(temptn);
-                }
-                path = temppath;
+                airplane.Queue(path);
             }
             else if (Mouse.GetState().LeftButton==ButtonState.Released)
             {
                 lastMouse = false;
             }
-            dotpos.X -= 8;
-            dotpos.Y -= 8;
 
-            a.update();
+            airplane.update();
             base.Update(gameTime);
         }
 
@@ -135,14 +118,10 @@ namespace GroundControl
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-
-            Rectangle final = new Rectangle((int)dotpos.X, (int)dotpos.Y, 16, 16);
-            
-
             Display.basicEffect.CurrentTechnique.Passes[0].Apply(); //apparently does pixel shaders and stuff haha
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
-            t.Draw();
+            airport.Draw();
 
             if (path.Count > 1)
             {
@@ -153,7 +132,7 @@ namespace GroundControl
                 Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
             }
             spriteBatch.Begin();
-            a.draw();
+            airplane.draw();
             spriteBatch.End();
             base.Draw(gameTime);
         }

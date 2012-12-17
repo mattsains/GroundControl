@@ -11,39 +11,45 @@ namespace GroundControl
 {
     class Aircraft
     {
-        const float speed = 10f;
+        const float speed = 2f;
         Texture2D texture;
         Vector2 position;
         Vector2 velocity = new Vector2();
         float direction = 0;
+        float prevdot=float.MaxValue;
 
-        Queue<Vector2> queue=new Queue<Vector2>();
-        public Aircraft(Texture2D texture, Vector2 position)
+        public TaxiNode destination;
+        Queue<TaxiNode> queue = new Queue<TaxiNode>();
+
+        public Aircraft(Texture2D texture, TaxiNode startAt)
         {
             this.texture = texture;
-            this.position = position;
+            this.JumpTo(startAt);
         }
         public void update()
         {
-            const int threash = 10;
             if (queue.Count > 0)
             {
-                Rectangle search= new Rectangle((int)position.X-16, (int)position.Y-16, (int)threash+16, (int)threash+16);
-
-                if (search.Intersects(new Rectangle((int)queue.Peek().X, (int)queue.Peek().Y, 5, 5)))
+                Vector2 temp = queue.Peek().position - position;// vector to our destination
+                Vector2 vecDirection = Vector2.Normalize(velocity);
+                if (Math.Abs(Vector2.Dot(vecDirection, Vector2.Normalize(queue.Peek().position - position)) + 1) < 0.1f || (temp.X==0 && temp.Y==0))
                 {
+                    // We are either at our destination, or past it
                     queue.Dequeue();
                     velocity = new Vector2();
                 }
-                else if (velocity.LengthSquared()==0)
+                else if (velocity.X == 0 && velocity.Y == 0)
                 {
-                    Vector2 temp = queue.Peek() - position;
                     temp.Normalize();
                     this.velocity = new Vector2(temp.X * speed, temp.Y * speed);
-                    direction = (float)Math.PI/2 - (float)Math.Atan(-velocity.Y / velocity.X);
+                    direction = (float)Math.PI / 2 - (float)Math.Atan(-velocity.Y / velocity.X);
                     if (velocity.X < 0 && velocity.Y > 0)
                         //special case :(
                         direction += (float)Math.PI;
+                    if (velocity.X < 0 && velocity.Y < 0)
+                        //special case #2 :((
+                        direction += (float)Math.PI * (3 / 2);
+                    prevdot = Vector2.Dot(position, queue.Peek().position);
                 }
 
             }
@@ -52,12 +58,26 @@ namespace GroundControl
         }
         public void draw()
         {
-            Display.SpriteBatch.Draw(texture, new Rectangle((int)Display.WorldToScreen(position).X, (int)Display.WorldToScreen(position).Y,32,32),new Rectangle(0,0,32,32),Color.White,direction,new Vector2(16,16),SpriteEffects.None,0);
+            Display.SpriteBatch.Draw(texture, new Rectangle((int)Display.WorldToScreen(position).X, (int)Display.WorldToScreen(position).Y, 32, 32), new Rectangle(0, 0, 32, 32), Color.White, direction, new Vector2(16, 16), SpriteEffects.None, 0);
         }
-        public void Queue(Vector2 position)
+        //some cool overloads
+        public void Queue(IEnumerable<TaxiNode> tnList)
         {
-            queue.Enqueue(new Vector2(position.X,position.Y));
-            Debug.Print("New Order: {0}", position.ToString());
+            foreach (TaxiNode tn in tnList)
+                this.Queue(tn);
+        }
+        public void Queue(TaxiNode tn)
+        {
+            queue.Enqueue(tn);
+            destination = tn;
+            Debug.Print("New order: {0}", tn.id);
+        }
+
+        public void JumpTo(TaxiNode tn)
+        {
+            this.position = tn.position;
+            queue = new Queue<TaxiNode>();//flush the queue
+            destination = tn; //and the destination
         }
     }
 }

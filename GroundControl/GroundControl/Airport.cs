@@ -14,17 +14,18 @@ namespace GroundControl
     /// </summary>
     class Airport
     {
-        public string icao; // taxiway number (actually it's usually a letter)
-        List<Tuple<List<Vector2>,Color>> aprons=new List<Tuple<List<Vector2>,Color>>();
+        public string icao; // ICAO code of airport, eg., FAPE for PE
 
-        public Graph<TaxiNode> taxiways = new Graph<TaxiNode>();
+        List<Tuple<List<Vector2>,Color>> aprons=new List<Tuple<List<Vector2>,Color>>();//I call graphics polygons aprons
+        public Graph<TaxiNode> taxiways = new Graph<TaxiNode>(); //graph of points for pathfinding
 
         //cache of graphics properties
-        private List<vpcind> graphicsPolys=new List<vpcind>();
+        private List<vpcInd> graphicsPolys=new List<vpcInd>();
         private Color background = Color.CornflowerBlue;
+        public int width, height;
+
         public Airport(string file)
         {
-            //initialize points here
             XmlTextReader XMLAsset = new XmlTextReader(string.Format("Content/{0}.xml", file));
             while (XMLAsset.Read())
             {
@@ -33,6 +34,8 @@ namespace GroundControl
                     if (XMLAsset.Name == "Airport")
                     {
                         this.icao = XMLAsset.GetAttribute("Icao");
+                        this.width = int.Parse(XMLAsset.GetAttribute("width"));
+                        this.height = int.Parse(XMLAsset.GetAttribute("height"));
                         try
                         {
                             int c = Convert.ToInt32(XMLAsset.GetAttribute("color").Substring(1), 16);
@@ -103,6 +106,7 @@ namespace GroundControl
                                                 new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))),//the position
                                                 nodeType, //it's a gate
                                                 XMLAsset.GetAttribute("tag")));
+
                         else taxiways.Vertices.Add(new TaxiNode(XMLAsset.GetAttribute("id"), //the node's ID
                                                 new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))), //the position
                                                 nodeType, //type
@@ -136,7 +140,7 @@ namespace GroundControl
                                 if (fromNode != null && toNode != null) break; //we're done searching
                             }
                             if (fromNode.nodeType==NodeType.Runway && toNode.nodeType==NodeType.Runway)
-                                taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()*1000); //square roots are expensive!
+                                taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()*10); //square roots are expensive!
                             else taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()); //square roots are expensive!
                         }
 
@@ -150,7 +154,7 @@ namespace GroundControl
         public void Draw()
         {
             Display.GraphicsDevice.Clear(background);
-            foreach (vpcind graphicsPoly in graphicsPolys)
+            foreach (vpcInd graphicsPoly in graphicsPolys)
                 Display.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(PrimitiveType.TriangleList, graphicsPoly.vertices, 0, graphicsPoly.vertices.Length, graphicsPoly.indices, 0, graphicsPoly.indices.Length / 3);
         }
     }

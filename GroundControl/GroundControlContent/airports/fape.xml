@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Airport Icao="FAPE" color="#1b5f09">
+<Airport Icao="FAPE" color="#1b5f09" width="1280" height="778">
   <Apron name="taxiway A">
     <Vertex x="882" y="2" />
     <Vertex x="795" y="56" />

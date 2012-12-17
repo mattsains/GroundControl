@@ -51,13 +51,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="dot.png">
-      <Name>dot</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="dumbplane.png">
       <Name>dumbplane</Name>
       <Importer>TextureImporter</Importer>
