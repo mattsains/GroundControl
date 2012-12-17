@@ -9,6 +9,7 @@ namespace GroundControl
     {
         public List<T> Vertices=new List<T>();
         List<Edge<T>> Edges = new List<Edge<T>>();
+        Edge<T> excludeNext = null;
 
         public void Connect(T from, T to, string tag, int weight=0)
         {
@@ -22,13 +23,16 @@ namespace GroundControl
                 Edges.Remove(_GetEdge(from, to));
             }
         }
-        public List<T> IncidentTo(T node)
+        public List<T> IncidentTo(T node,Edge<T> exclude=default(Edge<T>))
         {
             List<T> temp = new List<T>();
             foreach (Edge<T> edge in Edges)
             {
-                if (edge.From.Equals(node)) temp.Add(edge.To);
-                if (edge.To.Equals(node)) temp.Add(edge.From);
+                if (!edge.Equals(exclude))
+                {
+                    if (edge.From.Equals(node) && !edge.To.Equals(exclude)) temp.Add(edge.To);
+                    if (edge.To.Equals(node) && !edge.From.Equals(exclude)) temp.Add(edge.From);
+                }
             }
             return temp;
         }
@@ -49,17 +53,20 @@ namespace GroundControl
             else return int.MaxValue;
         }
 
-        public Stack<T> Dijkstra(T source, T target)
+        public Stack<T> Dijkstra(T source, T target,T exclude)
         {
             Dictionary<T, int> dist = new Dictionary<T, int>(); //this will store the vertex "potential" distance
             Dictionary<T, T> previous = new Dictionary<T, T>(); //this will store a vertex closer to the source than each vertex
             Heap<T> queue = new Heap<T>();
 
+            Edge<T> eexclude=default(Edge<T>);
+            if (IncidentTo(source).Count!=1)//if there's no other way, do not exclude it
+                 eexclude= _GetEdge(source, exclude);
             foreach (T v in Vertices)                                
             {
-                dist[v] = int.MaxValue;       //set the potentials to "infinity" - they are uncalculated as yet                           
-                previous[v] = default(T);     // Previous node in optimal path
-                queue.Push(v,int.MaxValue);   //add everything to the queue to be processed/followed
+                    dist[v] = int.MaxValue;       //set the potentials to "infinity" - they are uncalculated as yet                           
+                    previous[v] = default(T);     // Previous node in optimal path
+                    queue.Push(v, int.MaxValue);   //add everything to the queue to be processed/followed
             }                                          
 
             dist[source] = 0; //distance from the source to itself if zero                        
@@ -84,10 +91,10 @@ namespace GroundControl
                 if (dist[u] == int.MaxValue)// no incident vertices are in the queue.
                     break;                  // this means that there is no path
 
-                foreach (T v in IncidentTo(u)) // calculate the neighbours' distances in preparation of the next iteration.
-                {                                                    // removed from Q.
+                foreach (T v in IncidentTo(u,eexclude)) // calculate the neighbours' distances in preparation of the next iteration.
+                {
                     int alt = dist[u] + GetWeight(u, v);
-                    if (alt < dist[v])                                 // Relax (u,v,a)
+                    if (alt < dist[v])                                 
                     {
                         dist[v] = alt;
                         previous[v] = u;
@@ -98,6 +105,7 @@ namespace GroundControl
             }
             Stack<T> S = new Stack<T>();
             u = target;
+
             while (previous[u]!=null)  //follow previous-links from the target to the source
             {
                 S.Push(u);             // great use of a Stack!

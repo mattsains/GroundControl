@@ -24,6 +24,7 @@ namespace GroundControl
         Airport airport;
         Aircraft airplane;
 
+        Edge<TaxiNode> lastEdge = null;
         Stack<TaxiNode> path;
         bool lastMouse = false;
         public GroundControl()
@@ -94,7 +95,7 @@ namespace GroundControl
                 }
             }
             //mint is now the closest to the mouse
-            path = airport.taxiways.Dijkstra(airplane.destination, mint);
+            path = airport.taxiways.Dijkstra(airplane.destination, mint,airplane.pendest);
             path.Push(airplane.destination);
 
             if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouse)
@@ -127,7 +128,7 @@ namespace GroundControl
             {
                 VertexPositionColor[] lines = new VertexPositionColor[path.Count];
                 while (path.Count > 0)
-                    lines[lines.Length - path.Count] = new VertexPositionColor(new Vector3(path.Pop().position, 0), Color.Pink);
+                    lines[lines.Length - path.Count] = new VertexPositionColor(new Vector3(path.Pop().position, 0), Color.Red);
 
                 Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
             }

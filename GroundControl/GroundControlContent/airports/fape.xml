@@ -91,12 +91,14 @@
     <Gate x="551" y="171" id="gateA11" tag="A11" />
     <Gate x="531" y="183" id="gateA12" tag="A12" />
     <!--end A apron-->
-    <Taxiway x="789" y="69" id="txA.17" canhold="true"/><!--turn for rnwy 17-->
-    <Runway x="806" y="93" id="rnw17" canhold="true"/>
-    <Taxiway x="882" y="9" id="txA3.w" canhold="false"/><!--west bendpoint of A3-->
+    <Taxiway x="789" y="69" id="txA.17" canhold="true" /><!--turn for rnwy 17-->
+    <Runway x="806" y="93" id="rnw17" canhold="true" />
+    <Taxiway x="882" y="9" id="txA3.w" canhold="false" /><!--west bendpoint of A3-->
     <Taxiway x="902" y="9" id="txA3.e" canhold="false" /><!--east bendpoint of A3-->
     <Taxiway x="923" y="33" id="txA3.h" canhold="true"/><!--holdpoint rnwy 26-->
     <Runway x="951" y="72" id="rnw26" canhold="true" />
+    <Runway x="840" y="141" id="rnw8.17c" canhold="false" /><!--intersection-->
+    <Runway x="1250" y="743" id="rnw35" canhold="true" />
   </Nodes>
   <Edges>
     <connect from="rnw8" to="txA1.s" tag="8"/>
@@ -130,7 +132,10 @@
     <connect from="txaA2" to="gateA2" tag="Gate A2"/>
     <connect from="txaA2" to="txaA1" tag="A"/>
     <connect from="txaA1" to="gateA1" tag="Gate A1"/>
-    <connect from="rnw8.26" to="rnw26" tag="8/26"/>
+    <connect from="rnw8.26" to="rnw8.17c" tag="8/26"/>
+    <connect from="rnw8.17c" to="rnw26" tag="8/26"/>
+    <connect from="rnw17" to="rnw8.17c" tag="17/35" />
+    <connect from="rnw8.17c" to="rnw35" tag="17/35"/>
     <connect from="txaA1" to="txA.17" tag="A"/>
     <connect from="txA.17" to="rnw17" tag="17-THR"/>
     <connect from="txA.17" to="txA3.w" tag="A3"/>

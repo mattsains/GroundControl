@@ -19,6 +19,7 @@ namespace GroundControl
         float prevdot=float.MaxValue;
 
         public TaxiNode destination;
+        public TaxiNode pendest;
         Queue<TaxiNode> queue = new Queue<TaxiNode>();
 
         public Aircraft(Texture2D texture, TaxiNode startAt)
@@ -69,6 +70,7 @@ namespace GroundControl
         public void Queue(TaxiNode tn)
         {
             queue.Enqueue(tn);
+            pendest = destination;
             destination = tn;
             Debug.Print("New order: {0}", tn.id);
         }
