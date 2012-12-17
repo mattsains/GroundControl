@@ -69,10 +69,14 @@ namespace GroundControl
         }
         public void Queue(TaxiNode tn)
         {
-            queue.Enqueue(tn);
-            pendest = destination;
-            destination = tn;
-            Debug.Print("New order: {0}", tn.id);
+            if (queue.Count > 0 || destination != tn)
+            {
+                queue.Enqueue(tn);
+                pendest = destination;
+                destination = tn;
+                Debug.Print("New order: {0}", tn.id);
+            }
+            else Debug.Print("ignored: {0} because I'm already there", tn.id);
         }
 
         public void JumpTo(TaxiNode tn)

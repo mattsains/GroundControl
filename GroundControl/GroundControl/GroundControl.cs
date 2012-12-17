@@ -22,11 +22,14 @@ namespace GroundControl
         SpriteBatch spriteBatch;
 
         Airport airport;
-        Aircraft airplane;
+        Aircraft airplaneL;
+        Aircraft airplaneR;
+        
+        Stack<TaxiNode> pathL;
+        Stack<TaxiNode> pathR;
 
-        Edge<TaxiNode> lastEdge = null;
-        Stack<TaxiNode> path;
-        bool lastMouse = false;
+        bool lastMouseL = false;
+        bool lastMouseR = false;
         public GroundControl()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -54,12 +57,13 @@ namespace GroundControl
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            
+
             airport = new Airport("airports/fape");//TODO: this should be dynamic from whatever is in /airports
 
-            Display.Initialise(spriteBatch, GraphicsDevice,airport.width,airport.height); //Display helps us with drawing. It's static
+            Display.Initialise(spriteBatch, GraphicsDevice, airport.width, airport.height); //Display helps us with drawing. It's static
 
-            airplane = new Aircraft(Content.Load<Texture2D>("dumbplane"), airport.taxiways.Vertices[0]); //just start anywhere to test
+            airplaneL = new Aircraft(Content.Load<Texture2D>("dumbplane"), airport.taxiways.Vertices[0]); //just start anywhere to test
+            airplaneR = new Aircraft(Content.Load<Texture2D>("dumbplane2"), airport.taxiways.Vertices[1]);
         }
 
         /// <summary>
@@ -84,32 +88,46 @@ namespace GroundControl
 
             // TODO: Add your update logic here
             int min = int.MaxValue;
-            TaxiNode mint=airport.taxiways.Vertices[0];
+            TaxiNode mint = airport.taxiways.Vertices[0];
             foreach (TaxiNode tn in airport.taxiways.Vertices)
             {
-                int dsq=(int)Vector2.DistanceSquared(Display.WorldToScreen(tn.position),new Vector2(Mouse.GetState().X,Mouse.GetState().Y));
-                if (min > dsq /*&& tn.canHold*/)
+                int dsq = (int)Vector2.DistanceSquared(Display.WorldToScreen(tn.position), new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+                if (min > dsq && (tn.canHold || tn.nodeType == NodeType.Gate))
                 {
                     min = dsq;
                     mint = tn;
                 }
             }
             //mint is now the closest to the mouse
-            path = airport.taxiways.Dijkstra(airplane.destination, mint,airplane.pendest);
-            path.Push(airplane.destination);
+            pathL = airport.taxiways.Dijkstra(airplaneL.destination, mint, airplaneL.pendest);
+            pathR = airport.taxiways.Dijkstra(airplaneR.destination, mint, airplaneR.pendest);
 
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouse)
+            pathL.Push(airplaneL.destination);
+            pathR.Push(airplaneR.destination);
+
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouseL)
             {
-                lastMouse = true;
+                lastMouseL = true;
                 Debug.Print("Clicked at: {0},{1}", Mouse.GetState().X, Mouse.GetState().Y);
-                airplane.Queue(path);
+                airplaneL.Queue(pathL);
             }
-            else if (Mouse.GetState().LeftButton==ButtonState.Released)
+            else if (Mouse.GetState().LeftButton == ButtonState.Released)
             {
-                lastMouse = false;
+                lastMouseL = false;
+            }
+            if (Mouse.GetState().RightButton == ButtonState.Pressed && !lastMouseR)
+            {
+                lastMouseR = true;
+                Debug.Print("RClicked at: {0},{1}", Mouse.GetState().X, Mouse.GetState().Y);
+                airplaneR.Queue(pathR);
+            }
+            else if (Mouse.GetState().RightButton == ButtonState.Released)
+            {
+                lastMouseR = false;
             }
 
-            airplane.update();
+            airplaneL.update();
+            airplaneR.update();
             base.Update(gameTime);
         }
 
@@ -124,16 +142,26 @@ namespace GroundControl
 
             airport.Draw();
 
-            if (path.Count > 1)
+            if (pathL.Count > 1)
             {
-                VertexPositionColor[] lines = new VertexPositionColor[path.Count];
-                while (path.Count > 0)
-                    lines[lines.Length - path.Count] = new VertexPositionColor(new Vector3(path.Pop().position, 0), Color.Red);
+                VertexPositionColor[] lines = new VertexPositionColor[pathL.Count];
+                while (pathL.Count > 0)
+                    lines[lines.Length - pathL.Count] = new VertexPositionColor(new Vector3(pathL.Pop().position, 0), Color.Red);
 
                 Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
             }
+            if (pathR.Count > 1)
+            {
+                VertexPositionColor[] lines = new VertexPositionColor[pathR.Count];
+                while (pathR.Count > 0)
+                    lines[lines.Length - pathR.Count] = new VertexPositionColor(new Vector3(pathR.Pop().position, 0), Color.Blue);
+
+                Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
+            }
+
             spriteBatch.Begin();
-            airplane.draw();
+            airplaneL.draw();
+            airplaneR.draw();
             spriteBatch.End();
             base.Draw(gameTime);
         }

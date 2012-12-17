@@ -60,7 +60,7 @@ namespace GroundControl
             Heap<T> queue = new Heap<T>();
 
             Edge<T> eexclude=default(Edge<T>);
-            if (IncidentTo(source).Count!=1)//if there's no other way, do not exclude it
+            if (IncidentTo(source).Count!=1 && !target.Equals(exclude))//if there's no other way, do not exclude it
                  eexclude= _GetEdge(source, exclude);
             foreach (T v in Vertices)                                
             {
