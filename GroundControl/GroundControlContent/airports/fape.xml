@@ -44,13 +44,13 @@
     <Vertex x="545" y="312" />
     <Vertex x="500" y="244" />
   </Apron>
-  <Apron name="runway 8/26" color="#000000">
+  <Apron name="runway 8/26" color="#202020">
     <Vertex x="114" y="578" />
     <Vertex x="126" y="601" />
     <Vertex x="964" y="80" />
     <Vertex x="950" y="58" />
   </Apron>
-  <Apron name="runway 17/35" color="#000000">
+  <Apron name="runway 17/35" color="#404040">
     <Vertex x="803" y="68" />
     <Vertex x="782" y="81" />
     <Vertex x="1249" y="763" />

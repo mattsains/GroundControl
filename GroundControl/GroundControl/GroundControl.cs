@@ -24,7 +24,7 @@ namespace GroundControl
         Airport airport;
         Aircraft airplaneL;
         Aircraft airplaneR;
-        
+
         Stack<TaxiNode> pathL;
         Stack<TaxiNode> pathR;
 
@@ -60,7 +60,7 @@ namespace GroundControl
 
             airport = new Airport("airports/fape");//TODO: this should be dynamic from whatever is in /airports
 
-            Display.Initialise(spriteBatch, GraphicsDevice, airport.width, airport.height); //Display helps us with drawing. It's static
+            Display.Initialise(spriteBatch, GraphicsDevice, Content.Load<SpriteFont>("sego"), airport.width, airport.height); //Display helps us with drawing. It's static
 
             airplaneL = new Aircraft(Content.Load<Texture2D>("dumbplane"), airport.taxiways.Vertices[0]); //just start anywhere to test
             airplaneR = new Aircraft(Content.Load<Texture2D>("dumbplane2"), airport.taxiways.Vertices[1]);
@@ -141,25 +141,37 @@ namespace GroundControl
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             airport.Draw();
-
+            spriteBatch.Begin();
             if (pathL.Count > 1)
             {
                 VertexPositionColor[] lines = new VertexPositionColor[pathL.Count];
+                TaxiNode prev = null;
                 while (pathL.Count > 0)
-                    lines[lines.Length - pathL.Count] = new VertexPositionColor(new Vector3(pathL.Pop().position, 0), Color.Red);
-
+                {
+                    TaxiNode temp = pathL.Pop();
+                    if (prev != null)
+                        Display.DrawText(airport.taxiways.GetTag(prev, temp), Display.WorldToScreen((prev.position + temp.position) / 2), Color.Red);
+                    lines[lines.Length - pathL.Count - 1] = new VertexPositionColor(new Vector3(temp.position, 0), Color.Red);
+                    prev = temp;
+                }
                 Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
             }
             if (pathR.Count > 1)
             {
                 VertexPositionColor[] lines = new VertexPositionColor[pathR.Count];
+                TaxiNode prev = null;
                 while (pathR.Count > 0)
-                    lines[lines.Length - pathR.Count] = new VertexPositionColor(new Vector3(pathR.Pop().position, 0), Color.Blue);
-
+                {
+                    TaxiNode temp = pathR.Pop();
+                    if (prev != null)
+                        Display.DrawText(airport.taxiways.GetTag(prev, temp), Display.WorldToScreen((prev.position + temp.position) / 2), Color.Blue);
+                    lines[lines.Length - pathR.Count - 1] = new VertexPositionColor(new Vector3(temp.position, 0), Color.Blue);
+                    prev = temp;
+                }
                 Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
             }
 
-            spriteBatch.Begin();
+
             airplaneL.draw();
             airplaneR.draw();
             spriteBatch.End();

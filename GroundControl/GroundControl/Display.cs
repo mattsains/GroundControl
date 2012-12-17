@@ -12,6 +12,21 @@ namespace GroundControl
         public static SpriteBatch SpriteBatch;
         public static GraphicsDevice GraphicsDevice;
         public static BasicEffect basicEffect;
+        public static SpriteFont font;
+
+        public static void Initialise(SpriteBatch SpriteBatch, GraphicsDevice GraphicsDevice, SpriteFont font, int width, int height)
+        {
+            Display.SpriteBatch = SpriteBatch;
+            Display.GraphicsDevice = GraphicsDevice;
+            Display.basicEffect = new BasicEffect(GraphicsDevice);
+            Display.font = font;
+
+            basicEffect.VertexColorEnabled = true;
+            basicEffect.Projection = Matrix.CreateOrthographicOffCenter
+               (0, width,     // left, right
+                height, 0,    // bottom, top
+                0, 1);       // near, far plane
+        }
         public static vpcInd Triangulate(List<Vector2> vectors, Color colour)
         {
             Vector2[] v = vectors.ToArray();
@@ -39,17 +54,9 @@ namespace GroundControl
             Vector3 v3 = GraphicsDevice.Viewport.Unproject(new Vector3(orig, 0), basicEffect.Projection, basicEffect.View, basicEffect.World);
             return new Vector2(v3.X, v3.Y);
         }
-        public static void Initialise(SpriteBatch SpriteBatch, GraphicsDevice GraphicsDevice, int width, int height)
+        public static void DrawText(string text, Vector2 position,Color color=default(Color))
         {
-            Display.SpriteBatch = SpriteBatch;
-            Display.GraphicsDevice = GraphicsDevice;
-            basicEffect = new BasicEffect(GraphicsDevice);
-            basicEffect.VertexColorEnabled = true;
-            basicEffect.Projection = Matrix.CreateOrthographicOffCenter
-               (0, width,     // left, right
-                height, 0,    // bottom, top
-                0, 1);                                         // near, far plane
-
+            Display.SpriteBatch.DrawString(font, text, position, color);
         }
     }
     //A useful class that holds a tuple of VertexPositionColor[] and short[] for the graphics processor

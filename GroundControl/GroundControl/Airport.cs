@@ -140,7 +140,7 @@ namespace GroundControl
                                 if (fromNode != null && toNode != null) break; //we're done searching
                             }
                             if (fromNode.nodeType==NodeType.Runway && toNode.nodeType==NodeType.Runway)
-                                taxiways.Connect(fromNode, toNode, tag, (int)((fromNode.position - toNode.position).Length()*1.5)); //square roots are expensive!
+                                taxiways.Connect(fromNode, toNode, tag, (int)((fromNode.position - toNode.position).Length()*1.1)); //square roots are expensive!
                             else taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()); //square roots are expensive!
                         }
 
