@@ -116,7 +116,7 @@ namespace GroundControl
 
 
 
-        private Edge<T> _GetEdge(T from, T to)
+        public Edge<T> _GetEdge(T from, T to)
         {
             foreach (Edge<T> edge in Edges)
             {
@@ -132,7 +132,7 @@ namespace GroundControl
     /// Implements an edge in a graph with two end points, a tag (name) and a weight value
     /// </summary>
     /// <typeparam name="T">This is a generic class</typeparam>
-    class Edge<T>
+    class Edge<T>:IComparable<Edge<T>>
     {
         public T From { get; set; }
         public T To { get; set; }
@@ -149,6 +149,10 @@ namespace GroundControl
         public override string ToString()
         {
             return string.Format("From {0} to {1} weight: {2}", From.ToString(), To.ToString(), Weight);
+        }
+        public int CompareTo(Edge<T> that)
+        {
+            return this.Weight - that.Weight;
         }
     }
 }

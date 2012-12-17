@@ -151,6 +151,40 @@ namespace GroundControl
             foreach (Tuple<List<Vector2>,Color> apron in aprons)
                 graphicsPolys.Add(Display.Triangulate(apron.Item1, apron.Item2));
         }
+        public List<Tuple<string, Vector2>> LabelPath(Stack<TaxiNode> path)
+        {
+            TaxiNode[] tn=new TaxiNode[path.Count];
+            path.CopyTo(tn, 0);
+            List<Edge<TaxiNode>> edgelist = new List<Edge<TaxiNode>>();
+
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                edgelist.Add(taxiways._GetEdge(tn[i], tn[i + 1]));
+            }
+            edgelist.Sort();
+            edgelist.Reverse();
+            //now in descending order
+            List<string> gotlabels = new List<string>();
+
+            for (int i = 0; i < edgelist.Count; i++)
+            {
+                bool dupe = false;
+                foreach (string label in gotlabels)
+                    if (label == edgelist[i].Tag)
+                    {
+                        edgelist.RemoveAt(i);
+                        i--;
+                        dupe = true;
+                        break;
+                    }
+                if (!dupe) gotlabels.Add(edgelist[i].Tag);
+            }
+            //now edgelist contains only important edges
+            List<Tuple<string, Vector2>> output = new List<Tuple<string, Vector2>>();
+            foreach (Edge<TaxiNode> e in edgelist)
+                output.Add(new Tuple<string, Vector2>(e.Tag, (e.From.position + e.To.position) / 2));
+            return output;
+        }
         public void Draw()
         {
             Display.GraphicsDevice.Clear(background);

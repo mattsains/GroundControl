@@ -28,6 +28,9 @@ namespace GroundControl
         Stack<TaxiNode> pathL;
         Stack<TaxiNode> pathR;
 
+        List<Tuple<string,Vector2>> labelL;
+        List<Tuple<string,Vector2>> labelR;
+
         bool lastMouseL = false;
         bool lastMouseR = false;
         public GroundControl()
@@ -105,6 +108,9 @@ namespace GroundControl
             pathL.Push(airplaneL.destination);
             pathR.Push(airplaneR.destination);
 
+            labelL = airport.LabelPath(pathL);
+            labelR = airport.LabelPath(pathR);
+
             if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouseL)
             {
                 lastMouseL = true;
@@ -145,32 +151,22 @@ namespace GroundControl
             if (pathL.Count > 1)
             {
                 VertexPositionColor[] lines = new VertexPositionColor[pathL.Count];
-                TaxiNode prev = null;
                 while (pathL.Count > 0)
-                {
-                    TaxiNode temp = pathL.Pop();
-                    if (prev != null)
-                        Display.DrawText(airport.taxiways.GetTag(prev, temp), Display.WorldToScreen((prev.position + temp.position) / 2), Color.Red);
-                    lines[lines.Length - pathL.Count - 1] = new VertexPositionColor(new Vector3(temp.position, 0), Color.Red);
-                    prev = temp;
-                }
+                    lines[lines.Length - pathL.Count] = new VertexPositionColor(new Vector3(pathL.Pop().position, 0), Color.Red);
                 Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
             }
             if (pathR.Count > 1)
             {
                 VertexPositionColor[] lines = new VertexPositionColor[pathR.Count];
-                TaxiNode prev = null;
                 while (pathR.Count > 0)
-                {
-                    TaxiNode temp = pathR.Pop();
-                    if (prev != null)
-                        Display.DrawText(airport.taxiways.GetTag(prev, temp), Display.WorldToScreen((prev.position + temp.position) / 2), Color.Blue);
-                    lines[lines.Length - pathR.Count - 1] = new VertexPositionColor(new Vector3(temp.position, 0), Color.Blue);
-                    prev = temp;
-                }
+                    lines[lines.Length - pathR.Count] = new VertexPositionColor(new Vector3(pathR.Pop().position, 0), Color.Blue);
                 Display.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, lines, 0, lines.Length - 1);
             }
 
+            foreach (Tuple<string, Vector2> l in labelL)
+                Display.DrawText(l.Item1, Display.WorldToScreen(l.Item2), Color.Red);
+            foreach (Tuple<string, Vector2> l in labelR)
+                Display.DrawText(l.Item1, Display.WorldToScreen(l.Item2), Color.Blue);
 
             airplaneL.draw();
             airplaneR.draw();
