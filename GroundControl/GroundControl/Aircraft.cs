@@ -59,7 +59,7 @@ namespace GroundControl
         }
         public void draw()
         {
-            Display.SpriteBatch.Draw(texture, new Rectangle((int)Display.WorldToScreen(position).X, (int)Display.WorldToScreen(position).Y, 32, 32), new Rectangle(0, 0, 32, 32), Color.White, direction, new Vector2(16, 16), SpriteEffects.None, 0);
+            Display.SpriteBatch.Draw(texture, new Rectangle((int)Display.WorldToScreen(position).X, (int)Display.WorldToScreen(position).Y, 15, 21), new Rectangle(0, 0, 15, 21), Color.White, direction, new Vector2(8, 11), SpriteEffects.None, 0);
         }
         //some cool overloads
         public void Queue(IEnumerable<TaxiNode> tnList)
