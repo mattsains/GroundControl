@@ -56,7 +56,8 @@ namespace GroundControl
         }
         public static void DrawText(string text, Vector2 position,Color color=default(Color))
         {
-            Display.SpriteBatch.DrawString(font, text, position, color);
+            Vector2 offset = font.MeasureString(text) / 2;
+            Display.SpriteBatch.DrawString(font, text, position-offset, color);
         }
     }
     //A useful class that holds a tuple of VertexPositionColor[] and short[] for the graphics processor
