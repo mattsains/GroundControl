@@ -88,7 +88,12 @@ namespace GroundControl
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-
+            //instant debugging!
+            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                int i = 0;
+                int j = 5 / i;
+            }
             // TODO: Add your update logic here
             int min = int.MaxValue;
             TaxiNode mint = airport.taxiways.Vertices[0];
@@ -134,6 +139,7 @@ namespace GroundControl
 
             airplaneL.update();
             airplaneR.update();
+            
             base.Update(gameTime);
         }
 

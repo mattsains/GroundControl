@@ -116,7 +116,7 @@ namespace GroundControl
 
 
 
-        public Edge<T> _GetEdge(T from, T to)
+        private Edge<T> _GetEdge(T from, T to)
         {
             foreach (Edge<T> edge in Edges)
             {

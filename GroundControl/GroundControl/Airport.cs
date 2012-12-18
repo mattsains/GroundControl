@@ -155,12 +155,11 @@ namespace GroundControl
         {
             TaxiNode[] tn=new TaxiNode[path.Count];
             path.CopyTo(tn, 0);
-            List<Edge<TaxiNode>> edgelist = new List<Edge<TaxiNode>>();
+            List<LabelInfo> edgelist = new List<LabelInfo>();
 
             for (int i = 0; i < path.Count - 1; i++)
-            {
-                edgelist.Add(taxiways._GetEdge(tn[i], tn[i + 1]));
-            }
+                edgelist.Add(new LabelInfo(taxiways.GetWeight(tn[i], tn[i + 1]), (tn[i].position + tn[i + 1].position) / 2, taxiways.GetTag(tn[i], tn[i + 1])));
+           
             edgelist.Sort();
             edgelist.Reverse();
             //now in descending order
@@ -181,8 +180,8 @@ namespace GroundControl
             }
             //now edgelist contains only important edges
             List<Tuple<string, Vector2>> output = new List<Tuple<string, Vector2>>();
-            foreach (Edge<TaxiNode> e in edgelist)
-                output.Add(new Tuple<string, Vector2>(e.Tag, (e.From.position + e.To.position) / 2));
+            foreach (LabelInfo e in edgelist)
+                output.Add(new Tuple<string, Vector2>(e.Tag, e.Pos));
             return output;
         }
         public void Draw()
@@ -190,6 +189,24 @@ namespace GroundControl
             Display.GraphicsDevice.Clear(background);
             foreach (vpcInd graphicsPoly in graphicsPolys)
                 Display.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(PrimitiveType.TriangleList, graphicsPoly.vertices, 0, graphicsPoly.vertices.Length, graphicsPoly.indices, 0, graphicsPoly.indices.Length / 3);
+        }
+        class LabelInfo : IComparable<LabelInfo>
+        {
+            public int Weight { get; set; }
+            public Vector2 Pos { get; set; }
+            public string Tag { get; set; }
+
+            public LabelInfo(int weight, Vector2 pos, string tag)
+            {
+                this.Weight = weight;
+                this.Pos = pos;
+                this.Tag = tag;
+            }
+            
+            public int CompareTo(LabelInfo that)
+            {
+                return this.Weight - that.Weight;
+            }
         }
     }
 }
