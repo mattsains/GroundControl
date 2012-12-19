@@ -97,35 +97,37 @@ namespace GroundControl
             // TODO: Add your update logic here
             int min = int.MaxValue;
             TaxiNode mint = airport.taxiways.Vertices[0];
-            foreach (TaxiNode tn in airport.taxiways.Vertices)
+            if (Display.GotMouse)
             {
-                int dsq = (int)Vector2.DistanceSquared(Display.WorldToScreen(tn.position), new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
-                if (min > dsq && (tn.canHold || tn.nodeType == NodeType.Gate))
+                foreach (TaxiNode tn in airport.taxiways.Vertices)
                 {
-                    min = dsq;
-                    mint = tn;
+                    int dsq = (int)Vector2.DistanceSquared(Display.WorldToScreen(tn.position), new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+                    if (min > dsq && (tn.canHold || tn.nodeType == NodeType.Gate))
+                    {
+                        min = dsq;
+                        mint = tn;
+                    }
                 }
-            }
-            //mint is now the closest to the mouse
-            pathL = airport.taxiways.Dijkstra(airplaneL.destination, mint, airplaneL.pendest);
-            pathR = airport.taxiways.Dijkstra(airplaneR.destination, mint, airplaneR.pendest);
+                //mint is now the closest to the mouse
+                pathL = airport.taxiways.Dijkstra(airplaneL.destination, mint, airplaneL.pendest);
+                pathR = airport.taxiways.Dijkstra(airplaneR.destination, mint, airplaneR.pendest);
 
-            pathL.Push(airplaneL.destination);
-            pathR.Push(airplaneR.destination);
+                pathL.Push(airplaneL.destination);
+                pathR.Push(airplaneR.destination);
 
-            labelL = airport.LabelPath(pathL);
-            labelR = airport.LabelPath(pathR);
+                labelL = airport.LabelPath(pathL);
+                labelR = airport.LabelPath(pathR);
 
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouseL)
-            {
-                lastMouseL = true;
-                Debug.Print("Clicked at: {0},{1}", Mouse.GetState().X, Mouse.GetState().Y);
-                airplaneL.Queue(pathL);
-            }
-            else if (Mouse.GetState().LeftButton == ButtonState.Released)
-            {
-                lastMouseL = false;
-            }
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed && !lastMouseL)
+                {
+                    lastMouseL = true;
+                    Debug.Print("Clicked at: {0},{1}", Mouse.GetState().X, Mouse.GetState().Y);
+                    airplaneL.Queue(pathL);
+                }
+                else if (Mouse.GetState().LeftButton == ButtonState.Released)
+                {
+                    lastMouseL = false;
+                }/*
             if (Mouse.GetState().RightButton == ButtonState.Pressed && !lastMouseR)
             {
                 lastMouseR = true;
@@ -136,10 +138,19 @@ namespace GroundControl
             {
                 lastMouseR = false;
             }
-
+            */
+            }
+            else
+            {
+                pathL = new Stack<TaxiNode>();
+                pathR = new Stack<TaxiNode>();
+                labelL = new List<Tuple<string, Vector2>>();
+                labelR = new List<Tuple<string, Vector2>>();
+            }
             airplaneL.update();
             airplaneR.update();
-            
+
+            Display.UpdateProjection(Mouse.GetState());
             base.Update(gameTime);
         }
 
