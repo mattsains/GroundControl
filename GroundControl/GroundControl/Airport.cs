@@ -16,11 +16,11 @@ namespace GroundControl
     {
         public string icao; // ICAO code of airport, eg., FAPE for PE
 
-        List<Tuple<List<Vector2>,Color>> aprons=new List<Tuple<List<Vector2>,Color>>();//I call graphics polygons aprons
+        List<Tuple<List<Vector2>, Color>> aprons = new List<Tuple<List<Vector2>, Color>>();//I call graphics polygons aprons
         public Graph<TaxiNode> taxiways = new Graph<TaxiNode>(); //graph of points for pathfinding
 
         //cache of graphics properties
-        private List<vpcInd> graphicsPolys=new List<vpcInd>();
+        private List<vpcInd> graphicsPolys = new List<vpcInd>();
         private Color background = Color.CornflowerBlue;
         public int width, height;
 
@@ -48,7 +48,7 @@ namespace GroundControl
                     }
                 }
             }
-            
+
             while (XMLAsset.Read())
             {
                 if (XMLAsset.NodeType == XmlNodeType.Element && XMLAsset.Name == "Apron")
@@ -106,7 +106,12 @@ namespace GroundControl
                                                 new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))),//the position
                                                 nodeType, //it's a gate
                                                 XMLAsset.GetAttribute("tag")));
-
+                        else if (nodeType == NodeType.Runway)
+                            taxiways.Vertices.Add(new TaxiNode(XMLAsset.GetAttribute("id"),//the gate's ID
+                                                new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))),//the position
+                                                nodeType, //it's a runway
+                                                bool.Parse(XMLAsset.GetAttribute("canhold")),
+                                                XMLAsset.GetAttribute("tag")));
                         else taxiways.Vertices.Add(new TaxiNode(XMLAsset.GetAttribute("id"), //the node's ID
                                                 new Vector2(float.Parse(XMLAsset.GetAttribute("x")), float.Parse(XMLAsset.GetAttribute("y"))), //the position
                                                 nodeType, //type
@@ -139,8 +144,8 @@ namespace GroundControl
                                 if (node.id == toid) toNode = node;
                                 if (fromNode != null && toNode != null) break; //we're done searching
                             }
-                            if (fromNode.nodeType==NodeType.Runway && toNode.nodeType==NodeType.Runway)
-                                taxiways.Connect(fromNode, toNode, tag, (int)((fromNode.position - toNode.position).Length()*1.1)); //square roots are expensive!
+                            if (fromNode.nodeType == NodeType.Runway && toNode.nodeType == NodeType.Runway)
+                                taxiways.Connect(fromNode, toNode, tag, (int)((fromNode.position - toNode.position).Length() * 1.1)); //square roots are expensive!
                             else taxiways.Connect(fromNode, toNode, tag, (int)(fromNode.position - toNode.position).Length()); //square roots are expensive!
                         }
 
@@ -148,48 +153,40 @@ namespace GroundControl
                 }
             }
             //Add to the polygon cache
-            foreach (Tuple<List<Vector2>,Color> apron in aprons)
+            foreach (Tuple<List<Vector2>, Color> apron in aprons)
                 graphicsPolys.Add(Display.Triangulate(apron.Item1, apron.Item2));
         }
-        public List<Tuple<string, Vector2>> LabelPath(Stack<TaxiNode> path)
-        {
-            TaxiNode[] tn=new TaxiNode[path.Count];
-            path.CopyTo(tn, 0);
-            List<LabelInfo> edgelist = new List<LabelInfo>();
-
-            for (int i = 0; i < path.Count - 1; i++)
-                edgelist.Add(new LabelInfo(taxiways.GetWeight(tn[i], tn[i + 1]), (tn[i].position + tn[i + 1].position) / 2, taxiways.GetTag(tn[i], tn[i + 1])));
-           
-            edgelist.Sort();
-            edgelist.Reverse();
-            //now in descending order
-            List<string> gotlabels = new List<string>();
-
-            for (int i = 0; i < edgelist.Count; i++)
-            {
-                bool dupe = false;
-                foreach (string label in gotlabels)
-                    if (label == edgelist[i].Tag)
-                    {
-                        edgelist.RemoveAt(i);
-                        i--;
-                        dupe = true;
-                        break;
-                    }
-                if (!dupe) gotlabels.Add(edgelist[i].Tag);
-            }
-            //now edgelist contains only important edges
-            List<Tuple<string, Vector2>> output = new List<Tuple<string, Vector2>>();
-            foreach (LabelInfo e in edgelist)
-                output.Add(new Tuple<string, Vector2>(e.Tag, e.Pos));
-            return output;
-        }
+        
+        /// <summary>
+        /// Draws the entire airport environment. Draw everything else after this.
+        /// </summary>
         public void Draw()
         {
             Display.GraphicsDevice.Clear(background);
             foreach (vpcInd graphicsPoly in graphicsPolys)
                 Display.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(PrimitiveType.TriangleList, graphicsPoly.vertices, 0, graphicsPoly.vertices.Length, graphicsPoly.indices, 0, graphicsPoly.indices.Length / 3);
         }
+
+        /// <summary>
+        /// Calculates the positions of labels for any path around the airport
+        /// </summary>
+        /// <param name="points">the points in the route</param>
+        /// <returns>Tuples representing each label and where it should be</returns>
+        public List<Tuple<Vector2, string>> PathLabels(List<TaxiNode> nodes)
+        {
+            List<Tuple<Vector2, string>> uniqueLabels = new List<Tuple<Vector2, string>>();
+
+            for (int i = 0; i < nodes.Count - 1; i++)
+            {
+                if (uniqueLabels.Count == 0 || !uniqueLabels[uniqueLabels.Count - 1].Item2.Equals(taxiways.GetTag(nodes[i], nodes[i+1])))
+                    uniqueLabels.Add(new Tuple<Vector2, string>((nodes[i].position + nodes[i+1].position)/2, taxiways.GetTag(nodes[i], nodes[i + 1])));
+            }
+            return uniqueLabels;
+        }
+
+        /// <summary>
+        /// A useful enclosure for edge labels on a graph
+        /// </summary>
         class LabelInfo : IComparable<LabelInfo>
         {
             public int Weight { get; set; }
@@ -202,7 +199,7 @@ namespace GroundControl
                 this.Pos = pos;
                 this.Tag = tag;
             }
-            
+
             public int CompareTo(LabelInfo that)
             {
                 return this.Weight - that.Weight;

@@ -21,7 +21,6 @@
     <Vertex x="805" y="72" />
     <Vertex x="785" y="85" />
     -->
-    <!-- -->
     <Vertex x="803" y="68" />
     <Vertex x="885" y="15" />
     <Vertex x="900" y="14" />
@@ -58,12 +57,12 @@
   </Apron>
 
   <Nodes>
-    <Runway x="163" y="562" id="rnw8" canhold="true"/>
+    <Runway x="163" y="562" tag="Runway 8" id="rnw8" canhold="true"/>
     <Taxiway x="124" y="495" id="txA1.s" canhold="true"/>
     <Taxiway x="130" y="475" id="txA1.e" canhold="false"/>
     <Taxiway x="386" y="309" id="txA1.B" canhold="true"/><!--a1/b intersect. B has not been filled in yet! but it will connect here-->
     <Taxiway x="494" y="239" id="txA1.A2.C" canhold="true"/><!--a2/c intersect. C has not been filled in yet! but it will connect here-->
-    <Runway x="550" y="321" id="rnw8.26" canhold="true"/><!--end of a2.-->
+    <Runway x="550" y="321" tag="Runway 8/26" id="rnw8.26" canhold="true"/><!--end of a2.-->
     <!--A apron bendpoints-->
     <Taxiway x="546" y="207" id="txaA12" canhold="false"/>
     <Taxiway x="567" y="194" id="txaA11" canhold="false"/>
@@ -92,13 +91,13 @@
     <Gate x="531" y="183" id="gateA12" tag="A12" />
     <!--end A apron-->
     <Taxiway x="789" y="69" id="txA.17" canhold="true" /><!--turn for rnwy 17-->
-    <Runway x="806" y="93" id="rnw17" canhold="true" />
+    <Runway x="806" y="93" tag="Runway 17" id="rnw17" canhold="true" />
     <Taxiway x="882" y="9" id="txA3.w" canhold="false" /><!--west bendpoint of A3-->
     <Taxiway x="902" y="9" id="txA3.e" canhold="false" /><!--east bendpoint of A3-->
     <Taxiway x="923" y="33" id="txA3.h" canhold="true"/><!--holdpoint rnwy 26-->
-    <Runway x="951" y="72" id="rnw26" canhold="true" />
-    <Runway x="840" y="141" id="rnw8.17c" canhold="false" /><!--intersection-->
-    <Runway x="1250" y="743" id="rnw35" canhold="true" />
+    <Runway x="951" y="72" tag="Runway 26" id="rnw26" canhold="true" />
+    <Runway x="840" y="141" tag="Intersect 8/17" id="rnw8.17c" canhold="false" /><!--intersection-->
+    <Runway x="1250" y="743" tag="Runway 35" id="rnw35" canhold="true" />
   </Nodes>
   <Edges>
     <connect from="rnw8" to="txA1.s" tag="8"/>

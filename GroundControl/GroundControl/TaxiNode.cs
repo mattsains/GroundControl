@@ -29,12 +29,17 @@ namespace GroundControl
             if (nodeType == NodeType.Gate) throw new Exception("Tried to use the wrong initialization for Gate nodetype");
             else this._Initialize(id, position, nodeType, canHold, "");
         }
+        public TaxiNode(string id, Vector2 position, NodeType nodeType, bool canHold, string runwayTag)
+        {
+            if (nodeType != NodeType.Runway) throw new Exception("I think this is the wrong initialization for runway");
+            else this._Initialize(id, position, nodeType, canHold, runwayTag);
+        }
         private void _Initialize(string id, Vector2 position, NodeType nodeType, bool canHold, string GateTag)
         {
             this.id = id;
             this.nodeType = nodeType;
             this.position = position;
-            if (nodeType != NodeType.Gate)
+            if (nodeType != NodeType.Gate && nodeType!=NodeType.Runway)
                 this.canHold = canHold;
             else this.GateTag = GateTag;
         }

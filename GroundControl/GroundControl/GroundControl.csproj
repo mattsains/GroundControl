@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Aircraft.cs" />
+    <Compile Include="AircraftGroup.cs" />
     <Compile Include="Display.cs" />
     <Compile Include="Graph.cs" />
     <Compile Include="Heap.cs" />

@@ -11,79 +11,114 @@ namespace GroundControl
 {
     class Aircraft
     {
+        //The maximum speed of the aircraft
         const float speed = 2f;
+        //how much to multiply the texture by
+        const float scale = 1f / 3;
+
         Texture2D texture;
         Vector2 position;
         Vector2 velocity = new Vector2();
-        float direction = 0;
-        float prevdot=float.MaxValue;
 
-        public TaxiNode destination;
-        public TaxiNode pendest;
+        Airport airport;
+        //direction the aircraft is facing, in radians
+        float direction = 0;
+
+        //The nodes the aircraft must visit
         Queue<TaxiNode> queue = new Queue<TaxiNode>();
 
-        public Aircraft(Texture2D texture, TaxiNode startAt)
+        //UI things
+        public bool ShowInfo = false;
+
+        /// <summary>
+        /// Constructs a new aircraft
+        /// </summary>
+        /// <param name="texture">The texture used to draw the aircraft</param>
+        /// <param name="startAt">What node the aircraft will begin at</param>
+        /// <param name="direction">What direction (radians) the aircraft will face</param>
+        public Aircraft(Texture2D texture, Airport airport, TaxiNode startAt, float direction)
         {
             this.texture = texture;
-            this.JumpTo(startAt);
+            this.airport = airport;
+            this.JumpTo(startAt, direction);
         }
-        public void update()
-        {
-            if (queue.Count > 0)
-            {
-                Vector2 temp = queue.Peek().position - position;// vector to our destination
-                Vector2 vecDirection = Vector2.Normalize(velocity);
-                if (Math.Abs(Vector2.Dot(vecDirection, Vector2.Normalize(queue.Peek().position - position)) + 1) < 0.1f || (temp.X==0 && temp.Y==0))
-                {
-                    // We are either at our destination, or past it
-                    queue.Dequeue();
-                    velocity = new Vector2();
-                }
-                else if (velocity.X == 0 && velocity.Y == 0)
-                {
-                    temp.Normalize();
-                    this.velocity = new Vector2(temp.X * speed, temp.Y * speed);
-                    direction = (float)Math.PI / 2 - (float)Math.Atan(-velocity.Y / velocity.X);
-                    if (velocity.X < 0 && velocity.Y > 0)
-                        //special case :(
-                        direction += (float)Math.PI;
-                    if (velocity.X < 0 && velocity.Y < 0)
-                        //special case #2 :((
-                        direction += (float)Math.PI * (3 / 2);
-                    prevdot = Vector2.Dot(position, queue.Peek().position);
-                }
 
-            }
-            else { velocity = new Vector2(); }
-            this.position += velocity;
-        }
-        public void draw()
+        /// <summary>
+        /// Called during the game's update event. Controls aircraft AI.
+        /// </summary>
+        public void Update(float dt)
         {
-            Display.SpriteBatch.Draw(texture, new Rectangle((int)Display.WorldToScreen(position).X, (int)Display.WorldToScreen(position).Y, (int)(15*Display.WorldToScreenXScale), (int)(21*Display.WorldToScreenYScale)), new Rectangle(0, 0, 15, 21), Color.White, direction, new Vector2(8, 11), SpriteEffects.None, 0);
+            
         }
-        //some cool overloads
+
+        /// <summary>
+        /// Called during the game's draw event. Draws the airplane
+        /// </summary>
+        public void Draw()
+        {
+
+            if (ShowInfo)
+            {
+                List<TaxiNode> nodes = queue.ToList();
+                //Draw the labels
+                foreach (Tuple<Vector2, string> label in airport.PathLabels(nodes))
+                    Display.DrawText(label.Item2, label.Item1,Color.Red);
+
+                //Draw the path lines
+                VertexPositionColor[] lines = new VertexPositionColor[nodes.Count+1];
+                lines[0] = new VertexPositionColor(new Vector3(position, 0), Color.Red);
+                for (int i = 0; i < nodes.Count; i++)
+                    lines[i + 1] = new VertexPositionColor(new Vector3(nodes[i].position, 0), Color.Red);
+                Display.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip,lines,0,nodes.Count);
+
+                //Draw info about the plane
+                if (nodes[nodes.Count - 1].nodeType == NodeType.Gate)
+                    Display.DrawText("Dest: " + nodes[nodes.Count - 1].GateTag, new Vector2(0,texture.Height * scale)+ position, Color.Red);
+                else if (nodes[nodes.Count - 1].nodeType == NodeType.Runway)
+                    Display.DrawText("Dest: " + nodes[nodes.Count - 1].GateTag, new Vector2(0, texture.Height * scale) + position, Color.Red);
+                else
+                     Display.DrawText("Dest: TWY" + airport.taxiways.GetTag(nodes[nodes.Count-2],nodes[nodes.Count - 1]), new Vector2(0, texture.Height * scale) + position, Color.Red);
+            }
+            Display.SpriteBatch.Draw(texture, new Rectangle((int)Display.WorldToScreen(position).X, (int)Display.WorldToScreen(position).Y, (int)(texture.Width * Display.WorldToScreenXScale*scale), (int)(texture.Height * Display.WorldToScreenYScale*scale)), new Rectangle(0, 0, texture.Width, texture.Height), Color.White, direction, new Vector2(texture.Width / 2, texture.Height / 2), SpriteEffects.None, 0);
+        }
+
+        /// <summary>
+        /// Provides a bulk interface to Queue(Taxinode tn) - lets you put in a lot of them at once
+        /// </summary>
+        /// <param name="tnList"></param>
         public void Queue(IEnumerable<TaxiNode> tnList)
         {
             foreach (TaxiNode tn in tnList)
                 this.Queue(tn);
         }
+
+        /// <summary>
+        /// Adds a destination to the queue of points the AI aircraft will visit
+        /// </summary>
+        /// <param name="tn">The node to visit</param>
         public void Queue(TaxiNode tn)
         {
-            if (queue.Count > 0 || destination != tn)
-            {
+            if (queue.Count == 0 || queue.Peek() != tn)
                 queue.Enqueue(tn);
-                pendest = destination;
-                destination = tn;
-                Debug.Print("New order: {0}", tn.id);
-            }
-            else Debug.Print("ignored: {0} because I'm already there", tn.id);
         }
 
-        public void JumpTo(TaxiNode tn)
+        /// <summary>
+        /// Makes the aircraft forget its instructions and teleport to a place on the taxiway
+        /// </summary>
+        /// <param name="tn">The node to teleport to</param>
+        /// <param name="direction">The direction (radians) to face</param>
+        public void JumpTo(TaxiNode tn, float direction)
         {
             this.position = tn.position;
+            this.direction = direction;
             queue = new Queue<TaxiNode>();//flush the queue
-            destination = tn; //and the destination
+        }
+
+        public bool Intersects(Vector2 v)
+        {
+            return
+                (v.X > position.X - (texture.Width * scale) / 2 && v.X < position.X + (texture.Width * scale) / 2
+                && v.Y > position.Y - (texture.Height * scale) / 2 && v.Y < position.Y + (texture.Height * scale) / 2);
         }
     }
 }

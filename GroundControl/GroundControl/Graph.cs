@@ -7,23 +7,22 @@ namespace GroundControl
 {
     class Graph<T>
     {
-        public List<T> Vertices=new List<T>();
+        public List<T> Vertices = new List<T>();
         List<Edge<T>> Edges = new List<Edge<T>>();
-        Edge<T> excludeNext = null;
 
-        public void Connect(T from, T to, string tag, int weight=0)
+        public void Connect(T from, T to, string tag, int weight = 0)
         {
             if (Vertices.Contains(from) && Vertices.Contains(to))
                 Edges.Add(new Edge<T>(from, to, tag, weight));
         }
         public void Disconnect(T from, T to)
         {
-            if (IsAdjacent(from,to))
+            if (IsAdjacent(from, to))
             {
                 Edges.Remove(_GetEdge(from, to));
             }
         }
-        public List<T> IncidentTo(T node,Edge<T> exclude=default(Edge<T>))
+        public List<T> IncidentTo(T node, Edge<T> exclude = default(Edge<T>))
         {
             List<T> temp = new List<T>();
             foreach (Edge<T> edge in Edges)
@@ -53,21 +52,21 @@ namespace GroundControl
             else return int.MaxValue;
         }
 
-        public Stack<T> Dijkstra(T source, T target,T exclude)
+        public Stack<T> Dijkstra(T source, T target, T exclude)
         {
             Dictionary<T, int> dist = new Dictionary<T, int>(); //this will store the vertex "potential" distance
             Dictionary<T, T> previous = new Dictionary<T, T>(); //this will store a vertex closer to the source than each vertex
             Heap<T> queue = new Heap<T>();
 
-            Edge<T> eexclude=default(Edge<T>);
-            if (IncidentTo(source).Count!=1 && !target.Equals(exclude))//if there's no other way, do not exclude it
-                 eexclude= _GetEdge(source, exclude);
-            foreach (T v in Vertices)                                
+            Edge<T> eexclude = default(Edge<T>);
+            if (IncidentTo(source).Count != 1 && !target.Equals(exclude))//if there's no other way, do not exclude it
+                eexclude = _GetEdge(source, exclude);
+            foreach (T v in Vertices)
             {
-                    dist[v] = int.MaxValue;       //set the potentials to "infinity" - they are uncalculated as yet                           
-                    previous[v] = default(T);     // Previous node in optimal path
-                    queue.Push(v, int.MaxValue);   //add everything to the queue to be processed/followed
-            }                                          
+                dist[v] = int.MaxValue;       //set the potentials to "infinity" - they are uncalculated as yet                           
+                previous[v] = default(T);     // Previous node in optimal path
+                queue.Push(v, int.MaxValue);   //add everything to the queue to be processed/followed
+            }
 
             dist[source] = 0; //distance from the source to itself if zero                        
 
@@ -77,7 +76,7 @@ namespace GroundControl
             {
 
                 int minDist = int.MaxValue;
-                foreach (KeyValuePair<T,int> distance in dist)
+                foreach (KeyValuePair<T, int> distance in dist)
                     if (minDist > distance.Value && queue.Contains(distance.Key))
                     {
                         u = distance.Key;
@@ -91,10 +90,10 @@ namespace GroundControl
                 if (dist[u] == int.MaxValue)// no incident vertices are in the queue.
                     break;                  // this means that there is no path
 
-                foreach (T v in IncidentTo(u,eexclude)) // calculate the neighbours' distances in preparation of the next iteration.
+                foreach (T v in IncidentTo(u, eexclude)) // calculate the neighbours' distances in preparation of the next iteration.
                 {
                     int alt = dist[u] + GetWeight(u, v);
-                    if (alt < dist[v])                                 
+                    if (alt < dist[v])
                     {
                         dist[v] = alt;
                         previous[v] = u;
@@ -106,15 +105,13 @@ namespace GroundControl
             Stack<T> S = new Stack<T>();
             u = target;
 
-            while (previous[u]!=null)  //follow previous-links from the target to the source
+            while (previous[u] != null)  //follow previous-links from the target to the source
             {
                 S.Push(u);             // great use of a Stack!
                 u = previous[u];
             }
             return S;
         }
-
-
 
         private Edge<T> _GetEdge(T from, T to)
         {
@@ -132,14 +129,14 @@ namespace GroundControl
     /// Implements an edge in a graph with two end points, a tag (name) and a weight value
     /// </summary>
     /// <typeparam name="T">This is a generic class</typeparam>
-    class Edge<T>:IComparable<Edge<T>>
+    class Edge<T> : IComparable<Edge<T>>
     {
         public T From { get; set; }
         public T To { get; set; }
         public string Tag { get; set; }
         public int Weight { get; set; }
 
-        public Edge(T from, T to, string tag, int weight=0)
+        public Edge(T from, T to, string tag, int weight = 0)
         {
             this.From = from;
             this.To = to;
