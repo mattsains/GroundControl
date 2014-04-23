@@ -182,6 +182,32 @@ namespace GroundControl
                        m.Y < GraphicsDevice.Viewport.Y + GraphicsDevice.Viewport.Height && m.Y > GraphicsDevice.Viewport.Y);
             }
         }
+        public static void DrawRoute(List<TaxiNode> nodes, Airport airport, Color color) { DrawRoute(nodes, airport, color, new Vector2()); }
+        public static void DrawRoute(List<TaxiNode> nodes, Airport airport, Color color, Vector2 startFrom)
+        {
+            //Draw the labels
+            foreach (Tuple<Vector2, string> label in airport.PathLabels(nodes))
+                Display.DrawText(label.Item2, label.Item1, color);
+
+            //Draw the path lines
+            VertexPositionColor[] lines;
+            if (startFrom.X==0 && startFrom.Y==0)
+            {
+                if (nodes.Count <2) return; //no lines to draw
+                lines = new VertexPositionColor[nodes.Count];
+                for (int i = 0; i < nodes.Count; i++)
+                    lines[i] = new VertexPositionColor(new Vector3(nodes[i].position, 0), color);
+            }
+            else
+            {
+                if (nodes.Count ==0) return; //no lines to draw
+                lines = new VertexPositionColor[nodes.Count + 1];
+                lines[0] = new VertexPositionColor(new Vector3(startFrom, 0), color);
+                for (int i = 0; i < nodes.Count; i++)
+                    lines[i+1] = new VertexPositionColor(new Vector3(nodes[i].position, 0), color);
+            }
+            Display.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip, lines, 0, lines.Length-1);
+        }
     }
     //A useful class that holds a tuple of VertexPositionColor[] and short[] for the graphics processor
     class vpcInd : Tuple<VertexPositionColor[], short[]>

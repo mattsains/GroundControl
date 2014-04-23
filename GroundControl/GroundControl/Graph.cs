@@ -54,12 +54,13 @@ namespace GroundControl
 
         public Stack<T> Dijkstra(T source, T target, T exclude)
         {
+
             Dictionary<T, int> dist = new Dictionary<T, int>(); //this will store the vertex "potential" distance
             Dictionary<T, T> previous = new Dictionary<T, T>(); //this will store a vertex closer to the source than each vertex
             Heap<T> queue = new Heap<T>();
-
+            
             Edge<T> eexclude = default(Edge<T>);
-            if (IncidentTo(source).Count != 1 && !target.Equals(exclude))//if there's no other way, do not exclude it
+            if (IncidentTo(source).Count != 1 /*&& !target.Equals(exclude)*/)//if there's no other way, do not exclude it. Commented code: not sure why this is here, maybe an edge case I haven't considered.
                 eexclude = _GetEdge(source, exclude);
             foreach (T v in Vertices)
             {
@@ -110,6 +111,7 @@ namespace GroundControl
                 S.Push(u);             // great use of a Stack!
                 u = previous[u];
             }
+            S.Push(source);
             return S;
         }
 

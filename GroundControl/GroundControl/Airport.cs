@@ -185,6 +185,34 @@ namespace GroundControl
         }
 
         /// <summary>
+        /// Returns the node closest to a point on the screen
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public TaxiNode ClosestToScreenPos(int x, int y)
+        {
+            Vector2 worldpoint = Display.ScreenToWorld(new Vector2(x, y));
+
+            return ClosestToWorldPoint(worldpoint);
+        }
+        public TaxiNode ClosestToWorldPoint(Vector2 v)
+        {
+            TaxiNode closest = taxiways.Vertices[0];
+            float mindistance=float.MaxValue;
+
+            foreach (TaxiNode t in taxiways.Vertices)
+            {
+                float distance=(t.position - v).LengthSquared();
+                if (distance < mindistance)
+                {
+                    mindistance = distance;
+                    closest = t;
+                }
+            }
+            return closest;
+        }
+        /// <summary>
         /// A useful enclosure for edge labels on a graph
         /// </summary>
         class LabelInfo : IComparable<LabelInfo>

@@ -17,7 +17,7 @@ namespace GroundControl
         const float scale = 1f / 3;
 
         Texture2D texture;
-        Vector2 position;
+        public Vector2 position;
         Vector2 velocity = new Vector2();
 
         Airport airport;
@@ -28,7 +28,7 @@ namespace GroundControl
         Queue<TaxiNode> queue = new Queue<TaxiNode>();
 
         //UI things
-        public bool ShowInfo = false;
+        public Color ShowInfoColor = Color.Transparent;
 
         /// <summary>
         /// Constructs a new aircraft
@@ -43,6 +43,9 @@ namespace GroundControl
             this.JumpTo(startAt, direction);
         }
 
+        public bool isBusy { get { return queue.Count != 0; } }
+        public TaxiNode destination { get { List<TaxiNode> list = queue.ToList(); return list[list.Count - 1]; } }
+        public TaxiNode pendestination { get { List<TaxiNode> list = queue.ToList(); return list.Count >= 2 ? list[list.Count - 2] : null; } }
         /// <summary>
         /// Called during the game's update event. Controls aircraft AI.
         /// </summary>
@@ -56,28 +59,18 @@ namespace GroundControl
         /// </summary>
         public void Draw()
         {
-
-            if (ShowInfo)
+            if (ShowInfoColor!=Color.Transparent)
             {
                 List<TaxiNode> nodes = queue.ToList();
-                //Draw the labels
-                foreach (Tuple<Vector2, string> label in airport.PathLabels(nodes))
-                    Display.DrawText(label.Item2, label.Item1,Color.Red);
 
-                //Draw the path lines
-                VertexPositionColor[] lines = new VertexPositionColor[nodes.Count+1];
-                lines[0] = new VertexPositionColor(new Vector3(position, 0), Color.Red);
-                for (int i = 0; i < nodes.Count; i++)
-                    lines[i + 1] = new VertexPositionColor(new Vector3(nodes[i].position, 0), Color.Red);
-                Display.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip,lines,0,nodes.Count);
-
+                Display.DrawRoute(nodes, airport, ShowInfoColor, position);
                 //Draw info about the plane
                 if (nodes[nodes.Count - 1].nodeType == NodeType.Gate)
-                    Display.DrawText("Dest: " + nodes[nodes.Count - 1].GateTag, new Vector2(0,texture.Height * scale)+ position, Color.Red);
+                    Display.DrawText("Dest: " + nodes[nodes.Count - 1].GateTag, new Vector2(0, texture.Height * scale) + position, ShowInfoColor);
                 else if (nodes[nodes.Count - 1].nodeType == NodeType.Runway)
-                    Display.DrawText("Dest: " + nodes[nodes.Count - 1].GateTag, new Vector2(0, texture.Height * scale) + position, Color.Red);
+                    Display.DrawText("Dest: " + nodes[nodes.Count - 1].GateTag, new Vector2(0, texture.Height * scale) + position, ShowInfoColor);
                 else
-                     Display.DrawText("Dest: TWY" + airport.taxiways.GetTag(nodes[nodes.Count-2],nodes[nodes.Count - 1]), new Vector2(0, texture.Height * scale) + position, Color.Red);
+                    Display.DrawText("Dest: TWY" + airport.taxiways.GetTag(nodes[nodes.Count - 2], nodes[nodes.Count - 1]), new Vector2(0, texture.Height * scale) + position, ShowInfoColor);
             }
             Display.SpriteBatch.Draw(texture, new Rectangle((int)Display.WorldToScreen(position).X, (int)Display.WorldToScreen(position).Y, (int)(texture.Width * Display.WorldToScreenXScale*scale), (int)(texture.Height * Display.WorldToScreenYScale*scale)), new Rectangle(0, 0, texture.Width, texture.Height), Color.White, direction, new Vector2(texture.Width / 2, texture.Height / 2), SpriteEffects.None, 0);
         }
@@ -111,9 +104,16 @@ namespace GroundControl
         {
             this.position = tn.position;
             this.direction = direction;
-            queue = new Queue<TaxiNode>();//flush the queue
+            Stop();//flush the queue
         }
 
+        /// <summary>
+        /// Just stop moving - forget the mission
+        /// </summary>
+        public void Stop()
+        {
+            queue = new Queue<TaxiNode>();
+        }
         public bool Intersects(Vector2 v)
         {
             return

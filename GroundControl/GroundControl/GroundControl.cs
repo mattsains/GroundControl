@@ -24,6 +24,10 @@ namespace GroundControl
         Airport airport;
         AircraftGroup aircraft = new AircraftGroup();
 
+
+        List<Aircraft> selectedAircraft=new List<Aircraft>();
+
+        List<TaxiNode> planned = null;
         public GroundControl()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -50,7 +54,7 @@ namespace GroundControl
 
             aircraft.Add(new Aircraft(Content.Load<Texture2D>("aircraft/737"), airport, airport.taxiways.Vertices[0], 0));
             List<TaxiNode> path = airport.taxiways.Dijkstra(airport.taxiways.Vertices[0], airport.taxiways.Vertices[31],null).ToList();
-            aircraft[0].ShowInfo = true;
+
             aircraft[0].Queue(path);
         }
 
@@ -66,13 +70,37 @@ namespace GroundControl
              || Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Escape))
                 this.Exit();
 
+            planned = null;
+
             foreach (Aircraft a in aircraft)
                 if (a.Intersects(Display.ScreenToWorld(new Vector2(Mouse.GetState().X, Mouse.GetState().Y))))
-                    a.ShowInfo = true;
-                else a.ShowInfo=false;
+                {
+                    if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                        if (selectedAircraft.Contains(a))
+                            selectedAircraft.Remove(a);
+                        else selectedAircraft.Add(a);
+
+                    a.ShowInfoColor = Color.Red;
+                }
+                else a.ShowInfoColor = Color.Transparent;
 
 
             aircraft.Update(gameTime.ElapsedGameTime.Ticks);
+
+            foreach (Aircraft a in selectedAircraft)
+            {
+                a.ShowInfoColor = Color.Green;
+                TaxiNode destination = airport.ClosestToScreenPos(Mouse.GetState().X, Mouse.GetState().Y);
+                TaxiNode start;
+                if (a.isBusy)
+                    start=a.destination;
+                else
+                    start=airport.ClosestToWorldPoint(a.position);
+
+                planned = airport.taxiways.Dijkstra(start, destination,a.pendestination).ToList();
+            }
+
+            
 
             Display.UpdateProjection(Mouse.GetState());
             base.Update(gameTime);
@@ -80,12 +108,16 @@ namespace GroundControl
 
         protected override void Draw(GameTime gameTime)
         {
+            spriteBatch.Begin();
             Display.basicEffect.CurrentTechnique.Passes[0].Apply(); //apparently does pixel shaders and stuff haha
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             airport.Draw();
             aircraft.Draw();
+            if (planned!=null)
+                Display.DrawRoute(planned, airport, Color.Blue);
 
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }

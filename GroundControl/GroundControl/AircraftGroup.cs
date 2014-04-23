@@ -15,9 +15,7 @@ namespace GroundControl
         }
         public void Draw()
         {
-            Display.SpriteBatch.Begin();
             this.ForEach(a => a.Draw());
-            Display.SpriteBatch.End();
         }
     }
 }
